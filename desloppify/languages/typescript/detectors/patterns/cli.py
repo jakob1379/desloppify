@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize, print_table
+
 from .analysis import (
     _build_census,
     detect_pattern_anomalies,
@@ -14,7 +15,7 @@ from .analysis import (
 from .catalog import PATTERN_FAMILIES
 
 
-def cmd_patterns(args: argparse.Namespace) -> None:
+def cmd_patterns(args: SimpleNamespace) -> None:
     """Show full pattern census matrix plus competing-pattern anomalies."""
     path = Path(args.path)
     census, _evidence = _build_census(path)

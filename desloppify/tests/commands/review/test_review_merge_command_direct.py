@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 from types import SimpleNamespace
 
-from desloppify import state as state_mod
 import desloppify.app.commands.review.merge as merge_mod
+from desloppify import state as state_mod
 
 
 def _holistic_review_issue(
@@ -64,7 +63,7 @@ def test_do_merge_dry_run_reports_groups_without_persisting(
     monkeypatch.setattr(merge_mod, "write_query", lambda *_a, **_k: None)
     monkeypatch.setattr(merge_mod, "save_state", lambda *_a, **_k: (_ for _ in ()).throw(AssertionError("dry-run must not save state")))
 
-    args = argparse.Namespace(similarity=0.3, dry_run=True)
+    args = SimpleNamespace(similarity=0.3, dry_run=True)
     merge_mod.do_merge(args)
 
     assert state["work_items"][first["id"]]["status"] == "open"
@@ -100,7 +99,7 @@ def test_do_merge_marks_duplicates_and_persists_state(monkeypatch, tmp_path: Pat
     monkeypatch.setattr(merge_mod, "write_query", lambda payload: query_payloads.append(payload))
     monkeypatch.setattr(merge_mod, "utc_now", lambda: "2026-03-10T12:00:00+00:00")
 
-    args = argparse.Namespace(similarity=0.3, dry_run=False)
+    args = SimpleNamespace(similarity=0.3, dry_run=False)
     merge_mod.do_merge(args)
 
     assert saved == [(state, runtime.state_path)]

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 from desloppify.app.commands.plan.triage.helpers import (
@@ -95,7 +94,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1", "r2")
         plan = _plan_with_triage_and_workflow("r1", "r2")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -113,7 +112,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1")
         plan = _plan_with_triage_and_workflow("r1")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -125,7 +124,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1")
         plan = _plan_with_triage_and_workflow("r1")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -138,7 +137,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1", "r2", "r3")
         plan = _plan_with_triage_and_workflow("r1", "r2", "r3")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -150,7 +149,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1", "r2")
         plan = _plan_with_triage_and_workflow("r1", "r2")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -162,7 +161,7 @@ class TestApplyCompletionClearsTriageState:
         plan = _plan_with_triage_and_workflow("r1")
         plan["epic_triage_meta"]["active_triage_issue_ids"] = ["r1", "r2", "r3"]
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -176,7 +175,7 @@ class TestApplyCompletionClearsTriageState:
         plan["epic_triage_meta"]["undispositioned_issue_ids"] = ["r1"]
         plan["epic_triage_meta"]["undispositioned_issue_count"] = 1
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -198,7 +197,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1")
         plan = _plan_with_triage_and_workflow("r1")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -209,7 +208,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1")
         plan = _plan_with_triage_and_workflow("r1")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -223,7 +222,7 @@ class TestApplyCompletionClearsTriageState:
         state = _state_with_review_issues("r1", "r2")
         plan = _plan_with_triage_and_workflow("r1", "r2")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -238,7 +237,7 @@ class TestApplyCompletionClearsTriageState:
         state.pop("last_scan", None)
         plan = _plan_with_triage_and_workflow("r1")
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(args, plan, "Test strategy", services=services)
 
@@ -250,7 +249,7 @@ class TestApplyCompletionClearsTriageState:
         plan = _plan_with_triage_and_workflow("r1")
         plan["epic_triage_meta"]["strategy_summary"] = "Legacy sequencing summary from an older triage run."
         services = _make_services(state)
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         apply_completion(
             args,

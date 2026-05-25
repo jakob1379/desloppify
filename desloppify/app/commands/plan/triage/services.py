@@ -2,24 +2,23 @@
 
 from __future__ import annotations
 
-import argparse
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Protocol
-
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Protocol
 
 from desloppify.app.commands.helpers.command_runtime import (
     CommandRuntime,
     command_runtime,
 )
 from desloppify.app.commands.helpers.state_persistence import save_state_or_exit
+from desloppify.engine.plan_ops import append_log_entry
 from desloppify.engine.plan_state import (
     PlanModel,
     load_plan,
     save_plan,
 )
-from desloppify.engine.plan_ops import append_log_entry
 from desloppify.engine.plan_triage import (
     TriageInput,
     build_triage_prompt,
@@ -53,7 +52,7 @@ class AppendLogEntryFn(Protocol):
 class TriageServices:
     """Callables shared across triage handler modules."""
 
-    command_runtime: Callable[[argparse.Namespace], CommandRuntime]
+    command_runtime: Callable[[SimpleNamespace], CommandRuntime]
     load_plan: Callable[[], PlanModel]
     save_plan: Callable[[PlanModel], None]
     collect_triage_input: Callable[[PlanModel, StateModel], TriageInput]

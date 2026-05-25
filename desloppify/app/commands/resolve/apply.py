@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify import state as state_mod
 from desloppify.app.commands.helpers.query import (
@@ -40,7 +40,7 @@ def _try_expand_cluster(
 
 def _resolve_all_patterns(
     state: dict,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     attestation: str | None,
     plan_access: ResolvePlanAccess | None = None,

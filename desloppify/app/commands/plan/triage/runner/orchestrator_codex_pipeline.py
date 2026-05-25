@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import shlex
@@ -11,6 +10,7 @@ import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import desloppify
 from desloppify.app.commands.runner.run_logs import make_run_log_writer
@@ -19,9 +19,10 @@ from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 
-from ..stage_queue import has_triage_in_queue, inject_triage_stages
 from ..lifecycle import TriageLifecycleDeps, ensure_triage_started
 from ..services import TriageServices, default_triage_services
+from ..stage_queue import has_triage_in_queue, inject_triage_stages
+from ..stages.helpers import value_check_targets
 from ..validation.reflect_accounting import (
     analyze_reflect_issue_accounting,
     validate_reflect_accounting,
@@ -44,12 +45,20 @@ from .orchestrator_codex_pipeline_execution import (
     DEFAULT_STAGE_HANDLERS,
     StageExecutionDependencies,
     StageHandler,
+)
+from .orchestrator_codex_pipeline_execution import (
     execute_stage as execute_stage_impl,
+)
+from .orchestrator_codex_pipeline_execution import (
     read_stage_output as read_stage_output_impl,
 )
 from .orchestrator_common import STAGES, run_stamp
 from .stage_prompts import build_stage_prompt
-from ..stages.helpers import value_check_targets
+from .stage_runner_override import (  # re-exported for backwards compat
+    active_runner_name,
+    stage_runner_override,
+)
+
 _STAGE_HANDLERS: dict[str, StageHandler] = DEFAULT_STAGE_HANDLERS
 
 # Module-level override for the per-stage runner. The default (``None``)
@@ -57,13 +66,6 @@ _STAGE_HANDLERS: dict[str, StageHandler] = DEFAULT_STAGE_HANDLERS
 # :mod:`rovodev_pipeline` swap this for the rovodev stage runner during
 # the lifetime of one ``run_codex_pipeline`` call so that the existing
 # pipeline can drive any subprocess backend without further refactoring.
-from .stage_runner_override import (  # re-exported for backwards compat
-    active_runner_name,
-    active_stage_runner,
-    clear_stage_runner_override,
-    set_stage_runner_override,
-    stage_runner_override,
-)
 _analyze_reflect_issue_accounting = analyze_reflect_issue_accounting
 _validate_reflect_issue_accounting = validate_reflect_accounting
 
@@ -183,11 +185,7 @@ def _run_stage_sequence(
         si = pipeline_context.services.collect_triage_input(plan, pipeline_context.state)
         if stage == "sense-check":
             si.value_check_targets = value_check_targets(plan, pipeline_context.state)
-            setattr(
-                pipeline_context.args,
-                "sense_check_value_targets",
-                list(si.value_check_targets),
-            )
+            pipeline_context.args.sense_check_value_targets = list(si.value_check_targets)
         last_triage_input = si
         execution_result = execute_stage_impl(
             StageRunContext(
@@ -336,7 +334,7 @@ def _finalize_pipeline_run(
 
 
 def run_codex_pipeline(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     stages_to_run: list[str],
     services: TriageServices | None = None,

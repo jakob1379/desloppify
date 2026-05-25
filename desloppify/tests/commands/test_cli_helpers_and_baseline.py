@@ -14,7 +14,8 @@ from desloppify.base.config import (
     coerce_target_score,
     target_strict_score_from_config,
 )
-from desloppify.cli import _apply_persisted_exclusions, create_parser
+from desloppify.cli import _apply_persisted_exclusions
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 
 class TestTargetScoreHelpers:
@@ -171,7 +172,7 @@ class TestApplyPersistedExclusions:
 
 class TestCliSmokeBaseline:
     def test_smoke_fixture_commands_parse(self):
-        parser = create_parser()
+        parser = CliParseProbe()
 
         scan_args = parser.parse_args(
             [

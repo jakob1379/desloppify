@@ -8,7 +8,7 @@ appears in run logs / summaries) to Rovo Dev for the lifetime of one
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from . import orchestrator_codex_pipeline as _pipeline
 from . import stage_runner_override as _override
@@ -19,10 +19,10 @@ if False:  # pragma: no cover — import guard for type checkers
 
 
 def run_rovodev_pipeline(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     stages_to_run: list[str],
-    services: "TriageServices | None" = None,
+    services: TriageServices | None = None,
 ) -> None:
     """Run triage stages via ``acli rovodev run`` subprocesses.
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import desloppify.app.commands.plan.triage.runner.stage_prompts_instruction_blocks as prompts_instructions_mod
@@ -133,7 +132,7 @@ def test_observe_and_sense_prompt_builders_include_expected_context(tmp_path) ->
 
 
 def test_run_stage_enrich_handles_no_queue_and_records_stage(tmp_path, capsys) -> None:
-    args = argparse.Namespace(report="x" * 120, attestation=None)
+    args = SimpleNamespace(report="x" * 120, attestation=None)
 
     empty_services = _Services(plan={})
     stage_flow_enrich_mod.run_stage_enrich(
@@ -218,7 +217,7 @@ def test_record_sense_stage_and_run_stage_sense_check(tmp_path, capsys, monkeypa
         }
     }
     services = _Services(plan=plan)
-    args = argparse.Namespace(report="Verified all steps: src/services/main.ts lines 10-50 match descriptions. Structure and content accurate. " + "y" * 30)
+    args = SimpleNamespace(report="Verified all steps: src/services/main.ts lines 10-50 match descriptions. Structure and content accurate. " + "y" * 30)
 
     def _record_sense(stages: dict, *, report: str, existing_stage, is_reuse, value_targets=None):
         stages["sense-check"] = {

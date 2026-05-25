@@ -58,6 +58,6 @@ def test_scan_subjective_paths_aggregator_removed():
     ).exists()
 
 
-def test_cli_parser_uses_group_module():
-    src = Path("desloppify/app/cli_support/parser.py").read_text()
-    assert "parser_groups import" in src
+def test_cli_uses_typer_app_module():
+    src = Path("desloppify/cli.py").read_text()
+    assert "create_app as _create_app" in src

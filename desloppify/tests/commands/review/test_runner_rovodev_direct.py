@@ -214,9 +214,9 @@ def test_validate_runner_accepts_rovodev() -> None:
 
 
 def test_runner_parser_accepts_rovodev_choice() -> None:
-    from desloppify.cli import create_parser
+    from desloppify.tests.commands.cli_probe import CliParseProbe
 
-    parser = create_parser()
+    parser = CliParseProbe()
     args = parser.parse_args(
         ["review", "--run-batches", "--runner", "rovodev"]
     )

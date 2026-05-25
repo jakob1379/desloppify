@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import desloppify.app.commands.status.flow as flow_mod
@@ -66,7 +65,7 @@ def test_render_terminal_status_writes_query_payload_with_empty_plan(monkeypatch
     monkeypatch.setattr(flow_mod, "write_status_query", lambda request: written.append(request))
 
     flow_mod.render_terminal_status(
-        argparse.Namespace(path=".", lang=None),
+        SimpleNamespace(path=".", lang=None),
         state={
             "issues": {},
             "potentials": {},

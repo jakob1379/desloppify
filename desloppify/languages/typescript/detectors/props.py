@@ -1,17 +1,16 @@
 """Bloated prop interface detection (>14 props = prop drilling signal)."""
 
-import argparse
 import json
 import logging
 import re
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel
-
+from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.discovery.source import find_ts_and_tsx_files
 from desloppify.base.output.fallbacks import log_best_effort_failure
 from desloppify.base.output.terminal import colorize, print_table
-from desloppify.base.discovery.paths import get_project_root
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +95,7 @@ def detect_prop_interface_bloat(
     return sorted(entries, key=lambda e: -e["prop_count"]), total_interfaces
 
 
-def cmd_props(args: argparse.Namespace) -> None:
+def cmd_props(args: SimpleNamespace) -> None:
     entries, _ = detect_prop_interface_bloat(Path(args.path))
     if args.json:
         print(json.dumps({"count": len(entries), "entries": entries}, indent=2))

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from importlib.resources import files
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -12,15 +12,15 @@ import desloppify.app.commands.registry as registry_mod
 import desloppify.app.commands.setup.cmd as setup_cmd_mod
 from desloppify.app.skill_docs import SKILL_VERSION
 from desloppify.base.exception_sets import CommandError
-from desloppify.cli import create_parser
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 
-def _setup_args(*, interface: str | None = None) -> argparse.Namespace:
-    return argparse.Namespace(interface=interface)
+def _setup_args(*, interface: str | None = None) -> SimpleNamespace:
+    return SimpleNamespace(interface=interface)
 
 
 def test_setup_parser_and_registry_are_wired() -> None:
-    parser = create_parser()
+    parser = CliParseProbe()
     args = parser.parse_args(["setup", "--interface", "claude"])
     assert args.command == "setup"
     assert args.interface == "claude"
@@ -218,6 +218,6 @@ def test_rovodev_global_setup_writes_dedicated_skill_file(
 
 
 def test_setup_parser_accepts_rovodev_choice() -> None:
-    parser = create_parser()
+    parser = CliParseProbe()
     args = parser.parse_args(["setup", "--interface", "rovodev"])
     assert args.interface == "rovodev"

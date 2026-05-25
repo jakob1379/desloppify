@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.plan.shared.cluster_membership import cluster_issue_ids
@@ -30,7 +30,7 @@ def _print_cluster_member(idx: int, fid: str, issue: dict | None) -> None:
         print(colorize(f"       Suggestion: {suggestion[:200]}", "dim"))
 
 
-def _load_issues_best_effort(args: argparse.Namespace) -> dict:
+def _load_issues_best_effort(args: SimpleNamespace) -> dict:
     """Load issues from state, returning empty dict on failure."""
     rt = command_runtime(args)
     return rt.state.get("work_items") or rt.state.get("issues", {})
@@ -81,7 +81,7 @@ def _short_member_id(fid: str) -> str:
     return fid.rsplit("::", 1)[-1]
 
 
-def _print_cluster_members(args: argparse.Namespace, issue_ids: list[str], *, has_steps: bool) -> None:
+def _print_cluster_members(args: SimpleNamespace, issue_ids: list[str], *, has_steps: bool) -> None:
     print()
     if not issue_ids:
         print(colorize("  Members: (none)", "dim"))
@@ -105,7 +105,7 @@ def _print_cluster_members(args: argparse.Namespace, issue_ids: list[str], *, ha
         lines.append(current)
         for line in lines:
             print(colorize(line, "dim"))
-        print(colorize(f"  Full detail: desloppify show <member-id> --no-budget", "dim"))
+        print(colorize("  Full detail: desloppify show <member-id> --no-budget", "dim"))
         return
 
     issues = _load_issues_best_effort(args)
@@ -122,7 +122,7 @@ def _print_cluster_commands(cluster_name: str) -> None:
     print(colorize(f"    Skip:         desloppify plan skip {cluster_name}", "dim"))
 
 
-def _cmd_cluster_show(args: argparse.Namespace) -> None:
+def _cmd_cluster_show(args: SimpleNamespace) -> None:
     cluster_name: str = getattr(args, "cluster_name", "")
     cluster = _load_cluster_or_print_missing(cluster_name)
     if cluster is None:
@@ -301,7 +301,7 @@ def _print_cluster_list_summary(
         print(f"    {pos_str:>5} {pri_tag} {name}: {member_count} items{auto_tag}{desc_str}{marker}")
 
 
-def _cmd_cluster_list(args: argparse.Namespace) -> None:
+def _cmd_cluster_list(args: SimpleNamespace) -> None:
     plan = load_plan()
     clusters = plan.get("clusters", {})
     active = plan.get("active_cluster")
@@ -316,7 +316,9 @@ def _cmd_cluster_list(args: argparse.Namespace) -> None:
     sorted_clusters, min_pos_cache = _sorted_clusters_by_queue_pos(clusters, queue_order)
 
     if missing_steps:
-        from desloppify.app.commands.plan.triage.stages.helpers import unenriched_clusters
+        from desloppify.app.commands.plan.triage.stages.helpers import (
+            unenriched_clusters,
+        )
 
         gaps = unenriched_clusters(plan)
         if not gaps:

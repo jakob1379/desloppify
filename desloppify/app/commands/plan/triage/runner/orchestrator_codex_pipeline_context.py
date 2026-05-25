@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class PipelineRunContext:
     """Shared execution inputs for the full pipeline run."""
 
-    args: argparse.Namespace
+    args: SimpleNamespace
     services: TriageServices
     state: Any
     stages_to_run: list[str]
@@ -39,7 +39,7 @@ class StageRunContext:
 
     stage: str
     stage_start: float
-    args: argparse.Namespace
+    args: SimpleNamespace
     services: TriageServices
     plan: Mapping[str, Any]
     triage_input: Any

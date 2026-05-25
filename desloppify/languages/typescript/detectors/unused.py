@@ -5,7 +5,6 @@ Includes a Deno/edge-functions fallback where `tsc` cannot model URL-based impor
 
 from __future__ import annotations
 
-import argparse
 import json
 import logging
 import re
@@ -14,6 +13,7 @@ import subprocess  # nosec B404
 import sys
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel, resolve_path, safe_write_text
 from desloppify.base.discovery.paths import get_project_root
@@ -182,7 +182,7 @@ def _categorize_unused(filepath: str, lineno: int) -> str:
     return "imports"
 
 
-def cmd_unused(args: argparse.Namespace) -> None:
+def cmd_unused(args: SimpleNamespace) -> None:
     path = Path(args.path)
     if _should_use_deno_fallback(path, find_ts_and_tsx_files(path)):
         print(

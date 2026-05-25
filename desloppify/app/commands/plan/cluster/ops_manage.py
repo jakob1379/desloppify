@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    save_plan,
-)
 from desloppify.engine.plan_ops import (
     append_log_entry,
     create_cluster,
@@ -19,6 +15,10 @@ from desloppify.engine.plan_ops import (
     merge_clusters,
     normalize_step,
     parse_steps_file,
+)
+from desloppify.engine.plan_state import (
+    load_plan,
+    save_plan,
 )
 from desloppify.state_io import utc_now
 
@@ -122,7 +122,7 @@ def _import_cluster_entry(plan: dict, clusters: dict, entry: dict) -> tuple[bool
     return is_new, cluster
 
 
-def _cmd_cluster_create(args: argparse.Namespace) -> None:
+def _cmd_cluster_create(args: SimpleNamespace) -> None:
     name: str = getattr(args, "cluster_name", "")
     description: str | None = getattr(args, "description", None)
     action: str | None = getattr(args, "action", None)
@@ -156,7 +156,7 @@ def _cmd_cluster_create(args: argparse.Namespace) -> None:
     print(colorize(f"  Created cluster: {name}", "green"))
 
 
-def _cmd_cluster_delete(args: argparse.Namespace) -> None:
+def _cmd_cluster_delete(args: SimpleNamespace) -> None:
     cluster_name: str = getattr(args, "cluster_name", "")
     plan = load_plan()
     try:
@@ -175,7 +175,7 @@ def _cmd_cluster_delete(args: argparse.Namespace) -> None:
     print(colorize(f"  Deleted cluster {cluster_name} ({len(orphaned)} items orphaned).", "green"))
 
 
-def _cmd_cluster_export(args: argparse.Namespace) -> None:
+def _cmd_cluster_export(args: SimpleNamespace) -> None:
     """Export cluster steps to stdout in text or YAML format."""
     cluster_name: str = getattr(args, "cluster_name", "")
     export_format: str = getattr(args, "export_format", "text")
@@ -208,7 +208,7 @@ def _cmd_cluster_export(args: argparse.Namespace) -> None:
         print(format_steps(steps))
 
 
-def _cmd_cluster_import(args: argparse.Namespace) -> None:
+def _cmd_cluster_import(args: SimpleNamespace) -> None:
     """Bulk create/update clusters from a YAML file."""
     file_path: str = getattr(args, "file", "")
     dry_run: bool = getattr(args, "dry_run", False)
@@ -244,7 +244,7 @@ def _cmd_cluster_import(args: argparse.Namespace) -> None:
     print(colorize(f"  Import complete: {created} created, {updated} updated.", "green"))
 
 
-def _cmd_cluster_merge(args: argparse.Namespace) -> None:
+def _cmd_cluster_merge(args: SimpleNamespace) -> None:
     """Merge source cluster into target cluster."""
     source: str = getattr(args, "source", "")
     target: str = getattr(args, "target", "")

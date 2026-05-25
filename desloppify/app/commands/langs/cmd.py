@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.languages.framework import (
@@ -42,7 +42,7 @@ def _get_tool_labels(cfg: LangConfig) -> str:
     return (", ".join(labels) if labels else "none") + suffix
 
 
-def cmd_langs(args: argparse.Namespace) -> None:
+def cmd_langs(args: SimpleNamespace) -> None:
     """List all available languages with depth and tool info."""
     load_all()
 

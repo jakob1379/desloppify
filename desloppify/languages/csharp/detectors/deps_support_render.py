@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from collections import defaultdict
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel, resolve_path
 from desloppify.base.output.terminal import colorize, print_table
@@ -36,7 +36,7 @@ def build_graph_from_edge_map(edge_map: dict[str, set[str]]) -> dict[str, dict]:
     return finalize_graph(dict(graph))
 
 
-def render_deps_for_graph(args: argparse.Namespace, *, graph: dict[str, dict]) -> None:
+def render_deps_for_graph(args: SimpleNamespace, *, graph: dict[str, dict]) -> None:
     """Show dependency info for one C# file or top coupled files."""
     if getattr(args, "file", None):
         coupling = get_coupling_score(args.file, graph)
@@ -82,7 +82,7 @@ def render_deps_for_graph(args: argparse.Namespace, *, graph: dict[str, dict]) -
         print_table(["File", "Importers", "Imports"], rows, [70, 9, 7])
 
 
-def render_cycles_for_graph(args: argparse.Namespace, *, graph: dict[str, dict]) -> None:
+def render_cycles_for_graph(args: SimpleNamespace, *, graph: dict[str, dict]) -> None:
     """Show import cycles in C# source files."""
     cycles, _ = detect_cycles(graph)
     if getattr(args, "json", False):

@@ -2,24 +2,28 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
 
+from ..review_coverage import active_triage_issue_ids
+from ..services import TriageServices, default_triage_services
+from ..stages.helpers import scoped_manual_clusters_with_issues
+from ..validation.enrich_quality import (
+    EnrichQualityIssue as _ConfirmationCheckIssue,
+)
+from ..validation.enrich_quality import (
+    EnrichQualityReport as _ConfirmationCheckReport,
+)
+from ..validation.enrich_quality import (
+    evaluate_enrich_quality,
+)
 from .basic import MIN_ATTESTATION_LEN, validate_attestation
 from .shared import (
     StageConfirmationRequest,
     ensure_stage_is_confirmable,
     finalize_stage_confirmation,
-)
-from ..services import TriageServices, default_triage_services
-from ..stages.helpers import scoped_manual_clusters_with_issues
-from ..review_coverage import active_triage_issue_ids
-from ..validation.enrich_quality import (
-    EnrichQualityIssue as _ConfirmationCheckIssue,
-    EnrichQualityReport as _ConfirmationCheckReport,
-    evaluate_enrich_quality,
 )
 
 
@@ -163,7 +167,7 @@ def _handle_sense_check_failures(checks: _ConfirmationCheckReport) -> bool:
 
 
 def confirm_enrich(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     stages: dict,
     attestation: str | None,
@@ -216,7 +220,7 @@ def confirm_enrich(
 
 
 def confirm_sense_check(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     stages: dict,
     attestation: str | None,

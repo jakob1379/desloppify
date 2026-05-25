@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_next(args: argparse.Namespace) -> None:
+def cmd_next(args: SimpleNamespace) -> None:
     """Dispatch to the next command implementation."""
     from .cmd import cmd_next as _cmd_next
 

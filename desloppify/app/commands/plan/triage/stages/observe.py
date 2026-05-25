@@ -2,27 +2,27 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
 
+from ..lifecycle import TriageLifecycleDeps, ensure_triage_started
+from ..observe_batches import observe_dimension_breakdown
+from ..services import TriageServices, default_triage_services
 from ..stage_queue import (
     cascade_clear_dispositions,
     has_triage_in_queue,
     inject_triage_stages,
     print_cascade_clear_feedback,
 )
-from ..lifecycle import TriageLifecycleDeps, ensure_triage_started
-from ..observe_batches import observe_dimension_breakdown
-from ..services import TriageServices, default_triage_services
 from .flow_helpers import validate_stage_report_length
 from .records import record_observe_stage, resolve_reusable_report
 from .rendering import _print_observe_report_requirement
 
 
 def cmd_stage_observe(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
     has_triage_in_queue_fn=has_triage_in_queue,

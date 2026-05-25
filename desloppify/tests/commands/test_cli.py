@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
+from typer.testing import CliRunner
 
 import desloppify.app.commands.helpers.lang as lang_helpers_mod
 import desloppify.cli as cli_mod
@@ -17,13 +18,13 @@ from desloppify.app.commands.helpers.runtime_options import (
 )
 from desloppify.cli import (
     _get_detector_names,
-    _running_installed_package_from_checkout,
     _resolve_default_path,
+    _running_installed_package_from_checkout,
     _warn_if_running_installed_package_from_checkout,
-    create_parser,
     state_path,
 )
 from desloppify.languages.csharp import CSharpConfig
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 # ===========================================================================
 # Module import
@@ -34,7 +35,7 @@ class TestModuleImport:
     def test_module_importable(self):
         """Verify the cli module can be imported without side effects."""
         assert hasattr(cli_mod, "main")
-        assert hasattr(cli_mod, "create_parser")
+        assert hasattr(cli_mod, "create_typer_app")
 
 
 class TestInstalledPackageCheckoutWarning:
@@ -94,14 +95,49 @@ class TestInstalledPackageCheckoutWarning:
 
 
 # ===========================================================================
-# create_parser — argument parsing
+# Typer app argument parsing
 # ===========================================================================
 
 
 class TestCreateParser:
     @pytest.fixture()
     def parser(self):
-        return create_parser()
+        return CliParseProbe()
+
+    def test_root_help_groups_commands_without_collapsed_epilog(self):
+        result = CliRunner().invoke(cli_mod.create_typer_app(), ["--help"])
+
+        assert result.exit_code == 0
+        assert "workflow" in result.output
+        assert "investigate" in result.output
+        assert "improve" in result.output
+        assert "configure" in result.output
+        assert "--install-completion" in result.output
+        assert "--show-completion" in result.output
+        assert "workflow:   scan" not in result.output
+        assert "investigate:   show" not in result.output
+
+    def test_completion_script_uses_desloppify_command_name(self):
+        result = CliRunner().invoke(
+            cli_mod.create_typer_app(), ["--show-completion", "bash"]
+        )
+
+        assert result.exit_code == 0
+        assert "_DESLOPPIFY_COMPLETE=complete_bash" in result.output
+        assert "complete -o default -F _desloppify_completion desloppify" in result.output
+
+    def test_install_completion_writes_when_shell_rc_is_writable(self, tmp_path: Path):
+        result = CliRunner().invoke(
+            cli_mod.create_typer_app(),
+            ["--install-completion", "bash"],
+            env={"HOME": str(tmp_path)},
+        )
+
+        assert result.exit_code == 0
+        assert "bash completion installed" in result.output
+        assert (tmp_path / ".bashrc").is_file()
+        assert "source" in (tmp_path / ".bashrc").read_text(encoding="utf-8")
+        assert (tmp_path / ".bash_completions" / "desloppify.sh").is_file()
 
     def test_scan_command_parses(self, parser):
         args = parser.parse_args(["scan"])
@@ -144,7 +180,7 @@ class TestCreateParser:
         with pytest.raises(SystemExit):
             parser.parse_args(["scan", "--lang", "python"])
         err = capsys.readouterr().err
-        assert "unrecognized arguments" in err
+        assert "No such option" in err
         assert "--lang" in err
 
     def test_scan_with_exclude(self, parser):
@@ -224,6 +260,19 @@ class TestCreateParser:
         assert args.status == "all"
         assert args.group == "file"
         assert args.format == "md"
+
+    def test_enum_options_are_plain_strings(self, parser):
+        show_args = parser.parse_args(["show", "--status", "false_positive"])
+        assert show_args.status == "false_positive"
+        assert type(show_args.status) is str
+
+        triage_args = parser.parse_args(["plan", "triage", "--stage", "sense-check"])
+        assert triage_args.stage == "sense-check"
+        assert type(triage_args.stage) is str
+
+        setup_args = parser.parse_args(["setup", "--interface", "codex"])
+        assert setup_args.interface == "codex"
+        assert type(setup_args.interface) is str
 
     def test_plan_resolve_command(self, parser):
         args = parser.parse_args(["plan", "resolve", "id1", "id2"])

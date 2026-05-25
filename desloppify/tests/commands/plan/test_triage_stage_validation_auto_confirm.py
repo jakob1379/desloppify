@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 from desloppify.app.commands.plan.triage.validation import core as validation
@@ -91,7 +90,7 @@ def test_auto_confirm_reflect_for_organize_records_confirmation(monkeypatch) -> 
         "cluster strategy is consistent with current code evidence and priorities."
     )
     ok = validation._auto_confirm_reflect_for_organize(
-        args=argparse.Namespace(),
+        args=SimpleNamespace(),
         plan=plan,
         stages=stages,
         attestation=attestation,
@@ -130,7 +129,7 @@ def test_auto_confirm_reflect_for_organize_blocks_incomplete_accounting(monkeypa
     monkeypatch.setattr(validation, "detect_recurring_patterns", lambda _open, _resolved: {})
 
     ok = validation._auto_confirm_reflect_for_organize(
-        args=argparse.Namespace(),
+        args=SimpleNamespace(),
         plan=plan,
         stages=stages,
         attestation=(

@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
-from desloppify.languages import framework as lang_mod
 from desloppify.app.commands.move.apply import apply_file_move
 from desloppify.app.commands.move.directory import run_directory_move
 from desloppify.app.commands.move.language import (
@@ -25,9 +24,10 @@ from desloppify.base.discovery.file_paths import (
 )
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
+from desloppify.languages import framework as lang_mod
 
 
-def cmd_move(args: argparse.Namespace) -> None:
+def cmd_move(args: SimpleNamespace) -> None:
     """Move a file or directory and update all import references."""
     source_rel = args.source
     source_abs = resolve_path(source_rel)

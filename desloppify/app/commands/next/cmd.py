@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
+from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.guardrails import print_triage_guardrail_info
 from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.query import write_query
-from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory
 from desloppify.app.skill_docs import check_skill_version
 from desloppify.base.output.terminal import colorize
@@ -23,7 +23,7 @@ from .subjective import _low_subjective_dimensions
 build_work_queue = build_execution_queue
 
 
-def cmd_next(args: argparse.Namespace) -> None:
+def cmd_next(args: SimpleNamespace) -> None:
     """Show next highest-priority queue items."""
     runtime = command_runtime(args)
     state = runtime.state

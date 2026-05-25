@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.state_io import utc_now
 
 from ..display.dashboard import print_reflect_result
-from ..stage_queue import cascade_clear_dispositions, cascade_clear_later_confirmations, has_triage_in_queue
 from ..services import TriageServices, default_triage_services
+from ..stage_queue import (
+    cascade_clear_dispositions,
+    cascade_clear_later_confirmations,
+    has_triage_in_queue,
+)
 from ..validation.reflect_accounting import (
     BacklogDecision,
     ReflectDisposition,
@@ -245,7 +249,7 @@ def _persist_reflect_stage(
 
 
 def _cmd_stage_reflect(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:
@@ -315,7 +319,7 @@ def _cmd_stage_reflect(
 
 
 def cmd_stage_reflect(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

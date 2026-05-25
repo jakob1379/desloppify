@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel
 from desloppify.base.output.terminal import colorize, print_table
@@ -38,23 +38,23 @@ _cmd_complexity_impl = make_cmd_complexity(
 )
 
 
-def cmd_large(args: argparse.Namespace) -> None:
+def cmd_large(args: SimpleNamespace) -> None:
     _cmd_large_impl(args)
 
 
-def cmd_complexity(args: argparse.Namespace) -> None:
+def cmd_complexity(args: SimpleNamespace) -> None:
     _cmd_complexity_impl(args)
 
 
-def cmd_deps(args: argparse.Namespace) -> None:
+def cmd_deps(args: SimpleNamespace) -> None:
     cmd_deps_direct(args)
 
 
-def cmd_cycles(args: argparse.Namespace) -> None:
+def cmd_cycles(args: SimpleNamespace) -> None:
     cmd_cycles_deps(args)
 
 
-def cmd_orphaned(args: argparse.Namespace) -> None:
+def cmd_orphaned(args: SimpleNamespace) -> None:
     graph = build_dep_graph(
         Path(args.path), roslyn_cmd=resolve_roslyn_cmd_from_args(args)
     )
@@ -95,7 +95,7 @@ def cmd_orphaned(args: argparse.Namespace) -> None:
     print_table(["File", "LOC"], rows, [80, 6])
 
 
-def cmd_dupes(args: argparse.Namespace) -> None:
+def cmd_dupes(args: SimpleNamespace) -> None:
     functions = []
     for filepath in find_csharp_files(Path(args.path)):
         functions.extend(extract_csharp_functions(filepath))

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -43,7 +42,7 @@ def _make_stage_context(
     defaults = {
         "stage": "reflect",
         "stage_start": time.monotonic(),
-        "args": argparse.Namespace(state=None),
+        "args": SimpleNamespace(state=None),
         "services": SimpleNamespace(load_plan=lambda: {"epic_triage_meta": {"triage_stages": {}}}),
         "plan": {},
         "triage_input": {},
@@ -259,7 +258,7 @@ def test_enrich_checks_helpers_cover_main_signals(tmp_path, capsys) -> None:
 
 
 def test_confirmation_modules_stage_presence_guards(capsys) -> None:
-    args = argparse.Namespace()
+    args = SimpleNamespace()
     confirmations_basic_mod.confirm_observe(args, {}, {}, None)
     confirmations_basic_mod.confirm_reflect(args, {}, {}, None)
     confirmations_enrich_mod.confirm_enrich(args, {}, {}, None)
@@ -315,7 +314,7 @@ def test_validate_organize_submission_passes_state_to_enrichment_gate(monkeypatc
     )
 
     result = organize_stage_mod._validate_organize_submission(
-        args=argparse.Namespace(),
+        args=SimpleNamespace(),
         plan={"clusters": {}},
         state=state,
         stages={"observe": {}, "reflect": {}},
@@ -361,7 +360,7 @@ def test_confirm_organize_passes_state_to_enrichment_gate(monkeypatch) -> None:
     )
 
     confirmations_organize_mod.confirm_organize(
-        argparse.Namespace(),
+        SimpleNamespace(),
         {"clusters": {}},
         {"reflect": {"timestamp": ""}},
         None,
@@ -714,7 +713,7 @@ def test_pipeline_completion_helpers_cover_success_and_failure_paths(
 
     ok, result, report = orchestrator_pipeline_completion_mod.validate_and_confirm_stage(
         stage="observe",
-        args=argparse.Namespace(state=None),
+        args=SimpleNamespace(state=None),
         services=SimpleNamespace(load_plan=lambda: plan_store),
         triage_input=SimpleNamespace(),
         state={},
@@ -733,7 +732,7 @@ def test_pipeline_completion_helpers_cover_success_and_failure_paths(
     )
     ok, result, report = orchestrator_pipeline_completion_mod.validate_and_confirm_stage(
         stage="reflect",
-        args=argparse.Namespace(state=None),
+        args=SimpleNamespace(state=None),
         services=SimpleNamespace(load_plan=lambda: plan_store),
         triage_input=SimpleNamespace(),
         state={},
@@ -784,7 +783,7 @@ def test_complete_pipeline_uses_completion_command(monkeypatch) -> None:
     )
 
     completed = orchestrator_pipeline_completion_mod.complete_pipeline(
-        args=argparse.Namespace(state=None),
+        args=SimpleNamespace(state=None),
         services=services,
         plan=plan_before,
         strategy="do it",
@@ -796,7 +795,7 @@ def test_complete_pipeline_uses_completion_command(monkeypatch) -> None:
 def test_orchestrator_claude_prints_instructions(monkeypatch, capsys) -> None:
     monkeypatch.setattr(orchestrator_claude_mod, "ensure_triage_started", lambda *_a, **_k: None)
     services = SimpleNamespace(load_plan=lambda: {}, save_plan=lambda _plan: None)
-    orchestrator_claude_mod.run_claude_orchestrator(argparse.Namespace(), services=services)
+    orchestrator_claude_mod.run_claude_orchestrator(SimpleNamespace(), services=services)
     out = capsys.readouterr().out
     assert "Claude triage orchestrator mode" in out
 
@@ -1742,7 +1741,7 @@ def test_pipeline_execution_helpers_cover_leaf_paths(monkeypatch, tmp_path: Path
     context = orchestrator_pipeline_context_mod.StageRunContext(
         stage="observe",
         stage_start=time.monotonic(),
-        args=argparse.Namespace(state=None),
+        args=SimpleNamespace(state=None),
         services=SimpleNamespace(load_plan=lambda: {}),
         plan={"epic_triage_meta": {"triage_stages": {"observe": {"report": "done"}}}},
         triage_input=SimpleNamespace(),
@@ -1878,7 +1877,7 @@ def test_run_codex_pipeline_raises_on_stage_failure(monkeypatch, tmp_path: Path)
 
     with pytest.raises(CommandError) as excinfo:
         orchestrator_pipeline_mod.run_codex_pipeline(
-            argparse.Namespace(stage_timeout_seconds=30, dry_run=False, state=None),
+            SimpleNamespace(stage_timeout_seconds=30, dry_run=False, state=None),
             stages_to_run=["organize"],
             services=services,
         )

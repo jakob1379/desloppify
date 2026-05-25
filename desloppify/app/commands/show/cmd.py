@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
 from dataclasses import dataclass
+from types import SimpleNamespace
 
+from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.guardrails import print_triage_guardrail_info
 from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.query import write_query
-from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory
 from desloppify.app.skill_docs import check_skill_version
 from desloppify.base.config import target_strict_score_from_config
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ShowOptions:
-    """All user-facing show command options extracted once from argparse."""
+    """All user-facing show command options extracted once from CLI args."""
 
     pattern_raw: str = ""
     show_code: bool = False
@@ -51,7 +51,7 @@ class ShowOptions:
     top: int = 20
 
     @classmethod
-    def from_args(cls, args: argparse.Namespace) -> ShowOptions:
+    def from_args(cls, args: SimpleNamespace) -> ShowOptions:
         return cls(
             pattern_raw=str(getattr(args, "pattern", "") or ""),
             show_code=bool(getattr(args, "code", False)),
@@ -110,7 +110,7 @@ def _active_plan_or_none() -> dict | None:
     return None
 
 
-def cmd_show(args: argparse.Namespace) -> None:
+def cmd_show(args: SimpleNamespace) -> None:
     """Show all issues for a file, directory, detector, or pattern."""
     runtime = command_runtime(args)
     state = runtime.state

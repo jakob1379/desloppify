@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.policy_cmd as policy_cmd_mod
 from desloppify.engine._plan.policy.project import PolicyLoadResult
 
 
-def _args(**overrides) -> argparse.Namespace:
+def _args(**overrides) -> SimpleNamespace:
     base = {
         "policy_action": None,
         "rule_text": "",
         "rule_index": None,
     }
     base.update(overrides)
-    return argparse.Namespace(**base)
+    return SimpleNamespace(**base)
 
 
 def test_cmd_policy_dispatch_routes_add_and_remove(monkeypatch) -> None:

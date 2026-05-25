@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from importlib.resources import files
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.app.commands.update_skill import (
     _build_section,
@@ -147,7 +147,7 @@ def _run_global_setup(interface: str | None) -> None:
         print(colorize(f"Up to date: {', '.join(skipped_current)}", "dim"))
 
 
-def cmd_setup(args: argparse.Namespace) -> None:
+def cmd_setup(args: SimpleNamespace) -> None:
     """Install skill documents globally."""
     interface = getattr(args, "interface", None)
     interface = interface.lower() if isinstance(interface, str) else None

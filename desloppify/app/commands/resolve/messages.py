@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
@@ -66,14 +66,14 @@ def _hermes_reset_and_instruct(
         logger.debug("Hermes next-task injection skipped: %s", exc)
 
 
-def print_no_match_warning(args: argparse.Namespace) -> None:
+def print_no_match_warning(args: SimpleNamespace) -> None:
     status_label = "resolved" if args.status == "open" else "open"
     print(colorize(f"No {status_label} issues matching: {' '.join(args.patterns)}", "yellow"))
 
 
 def print_fixed_next_user_message(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict | None,
     next_command: str,
     mid_cluster: bool,

@@ -7,18 +7,18 @@ attestation, overwriting the auto-confirmed marker with a human-reviewed one.
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
 
+from ..services import TriageServices, default_triage_services
+from ..stages.records import TriageStages
 from .basic import MIN_ATTESTATION_LEN
 from .shared import (
     StageConfirmationRequest,
     finalize_stage_confirmation,
 )
-from ..services import TriageServices, default_triage_services
-from ..stages.records import TriageStages
 
 
 def _validate_strategize_attestation(
@@ -51,7 +51,7 @@ def _validate_strategize_attestation(
 
 
 def confirm_strategize(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     stages: TriageStages,
     attestation: str | None,

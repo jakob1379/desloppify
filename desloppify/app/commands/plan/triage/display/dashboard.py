@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.issue_id_display import short_issue_id
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
 from desloppify.engine.plan_triage import build_triage_snapshot
 
+from ..review_coverage import (
+    cluster_issue_ids,
+    triage_coverage,
+)
+from ..services import TriageServices, default_triage_services
+from ..stage_queue import print_cascade_clear_feedback
 from .layout import (
     print_action_guidance,
     print_dashboard_header,
@@ -17,12 +23,6 @@ from .layout import (
     show_plan_summary,
 )
 from .primitives import print_stage_progress
-from ..review_coverage import (
-    cluster_issue_ids,
-    triage_coverage,
-)
-from ..stage_queue import print_cascade_clear_feedback
-from ..services import TriageServices, default_triage_services
 
 
 def _cluster_tags(cluster: dict) -> str:
@@ -287,7 +287,7 @@ def _print_strategist_briefing(meta: dict) -> None:
 
 
 def cmd_triage_dashboard(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

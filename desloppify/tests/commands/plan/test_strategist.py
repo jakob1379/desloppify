@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
-import pytest
-
 import desloppify.app.commands.plan.triage.stages.strategize as strategize_mod
+from desloppify.app.commands.plan.triage.stages.observe import cmd_stage_observe
 from desloppify.app.commands.plan.triage.workflow import run_triage_workflow
-from desloppify.app.cli_support.parser_groups_plan_impl_sections_triage_commit_scan import (
-    _add_triage_subparser,
-)
 from desloppify.engine._plan.constants import (
     TRIAGE_STAGE_IDS,
     confirmed_triage_stage_names,
@@ -19,7 +14,7 @@ from desloppify.engine._plan.constants import (
 )
 from desloppify.engine._plan.sync.triage import _inject_pending_triage_stages
 from desloppify.engine.plan_triage import compute_triage_progress
-from desloppify.app.commands.plan.triage.stages.observe import cmd_stage_observe
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 
 def _services(plan: dict, state: dict):
@@ -49,7 +44,7 @@ def test_cmd_stage_strategize_persists_briefing_and_auto_confirms(monkeypatch, c
     )
 
     strategize_mod.cmd_stage_strategize(
-        argparse.Namespace(
+        SimpleNamespace(
             report=(
                 '{"score_trend":"stable","debt_trend":"stable",'
                 '"executive_summary":"'
@@ -86,7 +81,7 @@ def test_observe_is_blocked_until_strategize_is_recorded(capsys) -> None:
     assert progress.current_stage == "strategize"
 
     cmd_stage_observe(
-        argparse.Namespace(report="x" * 120, attestation=None),
+        SimpleNamespace(report="x" * 120, attestation=None),
         services=_services(plan, state),
         has_triage_in_queue_fn=lambda _plan: True,
         inject_triage_stages_fn=lambda _plan: None,
@@ -116,21 +111,19 @@ def test_legacy_tolerance_backfills_strategize_for_progress_and_sync() -> None:
 
 
 def test_cli_accepts_stage_and_stage_prompt_and_confirm() -> None:
-    parser = argparse.ArgumentParser()
-    sub = parser.add_subparsers(dest="cmd")
-    _add_triage_subparser(sub)
+    parser = CliParseProbe()
 
-    parsed = parser.parse_args(["triage", "--stage", "strategize", "--report", "{}"])
+    parsed = parser.parse_args(["plan", "triage", "--stage", "strategize", "--report", "{}"])
     assert parsed.stage == "strategize"
 
-    parsed_prompt = parser.parse_args(["triage", "--stage-prompt", "strategize"])
+    parsed_prompt = parser.parse_args(["plan", "triage", "--stage-prompt", "strategize"])
     assert parsed_prompt.stage_prompt == "strategize"
 
-    parsed_reqs = parser.parse_args(["triage", "--stage", "reflect", "--show-requirements"])
+    parsed_reqs = parser.parse_args(["plan", "triage", "--stage", "reflect", "--show-requirements"])
     assert parsed_reqs.stage == "reflect"
     assert parsed_reqs.show_requirements is True
 
-    parsed_confirm = parser.parse_args(["triage", "--confirm", "strategize"])
+    parsed_confirm = parser.parse_args(["plan", "triage", "--confirm", "strategize"])
     assert parsed_confirm.confirm == "strategize"
 
 
@@ -142,7 +135,7 @@ def test_show_requirements_prints_stage_without_loading_state(capsys) -> None:
     )
 
     run_triage_workflow(
-        argparse.Namespace(stage="reflect", show_requirements=True),
+        SimpleNamespace(stage="reflect", show_requirements=True),
         services=services,
         require_issue_inventory_fn=lambda _state: True,
     )

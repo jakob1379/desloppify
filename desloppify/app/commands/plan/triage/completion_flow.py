@@ -2,23 +2,25 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
 from collections import defaultdict
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.base.output.terminal import colorize
-from desloppify.engine._plan.refresh_lifecycle import current_lifecycle_phase
-from desloppify.engine._state.progression import (
-    append_progression_event,
-    build_triage_complete_event,
-)
 from desloppify.engine._plan.constants import (
     WORKFLOW_CREATE_PLAN_ID,
     WORKFLOW_SCORE_CHECKPOINT_ID,
 )
 from desloppify.engine._plan.policy.stale import review_issue_snapshot_hash
-from desloppify.engine._plan.refresh_lifecycle import mark_postflight_scan_completed
+from desloppify.engine._plan.refresh_lifecycle import (
+    current_lifecycle_phase,
+    mark_postflight_scan_completed,
+)
+from desloppify.engine._state.progression import (
+    append_progression_event,
+    build_triage_complete_event,
+)
 from desloppify.engine.plan_ops import purge_ids
 from desloppify.engine.plan_state import Cluster, PlanModel
 from desloppify.engine.plan_triage import TRIAGE_IDS
@@ -183,7 +185,7 @@ def _restore_postflight_scan_completion_for_current_scan(
 
 
 def apply_completion(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: PlanModel,
     strategy: str,
     *,

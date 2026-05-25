@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from contextlib import nullcontext
 from types import SimpleNamespace
 
@@ -37,7 +36,7 @@ def test_cluster_steps_print_step_variants(capsys) -> None:
 
 
 def test_build_request_rejects_update_title_without_update_step() -> None:
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         cluster_name="alpha",
         description=None,
         steps=None,
@@ -60,7 +59,7 @@ def test_build_request_rejects_update_title_without_update_step() -> None:
 
 
 def test_build_request_rejects_orphan_step_metadata_flags() -> None:
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         cluster_name="alpha",
         description=None,
         steps=None,
@@ -118,13 +117,13 @@ def test_cluster_display_helpers_and_renderers(monkeypatch, capsys) -> None:
         ),
     )
 
-    cluster_display_mod._cmd_cluster_show(argparse.Namespace(cluster_name="alpha"))
+    cluster_display_mod._cmd_cluster_show(SimpleNamespace(cluster_name="alpha"))
     out_show = capsys.readouterr().out
     assert "Cluster: alpha" in out_show
     assert "Members (1): i1" in out_show
 
     cluster_display_mod._cmd_cluster_list(
-        argparse.Namespace(verbose=True, missing_steps=False)
+        SimpleNamespace(verbose=True, missing_steps=False)
     )
     out_list = capsys.readouterr().out
     assert "2 clusters" in out_list
@@ -180,7 +179,7 @@ def test_cluster_manage_create_export_import_merge(monkeypatch, tmp_path, capsys
     steps_file.write_text("1. step\n", encoding="utf-8")
 
     cluster_manage_mod._cmd_cluster_create(
-        argparse.Namespace(
+        SimpleNamespace(
             cluster_name="alpha",
             description="desc",
             action="do",
@@ -195,7 +194,7 @@ def test_cluster_manage_create_export_import_merge(monkeypatch, tmp_path, capsys
 
     plan["clusters"]["alpha"]["action_steps"] = [{"title": "A"}]
     cluster_manage_mod._cmd_cluster_export(
-        argparse.Namespace(cluster_name="alpha", export_format="yaml")
+        SimpleNamespace(cluster_name="alpha", export_format="yaml")
     )
     out_export = capsys.readouterr().out
     assert "clusters:" in out_export
@@ -211,7 +210,7 @@ def test_cluster_manage_create_export_import_merge(monkeypatch, tmp_path, capsys
         encoding="utf-8",
     )
     cluster_manage_mod._cmd_cluster_import(
-        argparse.Namespace(file=str(import_file), dry_run=True)
+        SimpleNamespace(file=str(import_file), dry_run=True)
     )
     out_import = capsys.readouterr().out
     assert "[CREATE] new-cluster" in out_import
@@ -222,7 +221,7 @@ def test_cluster_manage_create_export_import_merge(monkeypatch, tmp_path, capsys
         lambda _plan, _source, _target: (2, ["i1", "i2"]),
     )
     cluster_manage_mod._cmd_cluster_merge(
-        argparse.Namespace(source="alpha", target="beta")
+        SimpleNamespace(source="alpha", target="beta")
     )
     out_merge = capsys.readouterr().out
     assert "Merged cluster 'alpha' into 'beta'" in out_merge
@@ -249,7 +248,7 @@ def test_cluster_manage_yaml_dependency_hint(monkeypatch, tmp_path, capsys) -> N
     )
 
     cluster_manage_mod._cmd_cluster_export(
-        argparse.Namespace(cluster_name="alpha", export_format="yaml")
+        SimpleNamespace(cluster_name="alpha", export_format="yaml")
     )
     out_export = capsys.readouterr().out
     assert "requires PyYAML" in out_export
@@ -258,7 +257,7 @@ def test_cluster_manage_yaml_dependency_hint(monkeypatch, tmp_path, capsys) -> N
     import_file = tmp_path / "clusters.yaml"
     import_file.write_text("clusters: []\n", encoding="utf-8")
     cluster_manage_mod._cmd_cluster_import(
-        argparse.Namespace(file=str(import_file), dry_run=True)
+        SimpleNamespace(file=str(import_file), dry_run=True)
     )
     out_import = capsys.readouterr().out
     assert "requires PyYAML" in out_import
@@ -317,7 +316,7 @@ def test_cluster_reorder_item_position_and_whole_cluster_paths(monkeypatch, caps
     monkeypatch.setattr(cluster_reorder_mod, "save_plan", lambda *_a, **_k: None)
 
     cluster_reorder_mod._cmd_cluster_reorder(
-        argparse.Namespace(
+        SimpleNamespace(
             cluster_names="alpha,beta",
             cluster_name="",
             position="top",
@@ -329,7 +328,7 @@ def test_cluster_reorder_item_position_and_whole_cluster_paths(monkeypatch, caps
     assert "Moved cluster(s) alpha, beta" in out_whole
 
     cluster_reorder_mod._cmd_cluster_reorder(
-        argparse.Namespace(
+        SimpleNamespace(
             cluster_names="alpha,beta",
             cluster_name="",
             position="top",
@@ -373,7 +372,7 @@ def test_cluster_update_direct_paths(capsys) -> None:
     }
     saved: list[dict] = []
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         cluster_name="alpha",
         description="updated",
         steps=None,
@@ -415,7 +414,7 @@ def test_cluster_update_direct_paths(capsys) -> None:
     assert cluster["action_steps"][1]["issue_refs"] == ["i1"]
     assert saved
 
-    no_update_args = argparse.Namespace(
+    no_update_args = SimpleNamespace(
         cluster_name="alpha",
         description=None,
         steps=None,
@@ -454,7 +453,7 @@ def test_cluster_update_steps_file_parse_failure_raises_command_error(tmp_path) 
     steps_file = tmp_path / "steps.md"
     steps_file.write_text("1. bad step", encoding="utf-8")
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         cluster_name="alpha",
         description=None,
         steps=None,

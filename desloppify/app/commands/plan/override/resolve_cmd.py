@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.attestation import (
     show_attestation_requirement,
@@ -17,11 +17,11 @@ from desloppify.base.exception_sets import PLAN_LOAD_EXCEPTIONS
 from desloppify.base.output.fallbacks import log_best_effort_failure
 from desloppify.base.output.terminal import colorize
 from desloppify.engine._work_queue.core import ATTEST_EXAMPLE
+from desloppify.engine.plan_ops import append_log_entry
 from desloppify.engine.plan_state import (
     load_plan,
     save_plan,
 )
-from desloppify.engine.plan_ops import append_log_entry
 
 from .resolve_helpers import (
     check_cluster_guard,
@@ -32,7 +32,7 @@ from .resolve_workflow import resolve_workflow_patterns
 logger = logging.getLogger(__name__)
 
 
-def cmd_plan_resolve(args: argparse.Namespace) -> None:
+def cmd_plan_resolve(args: SimpleNamespace) -> None:
     """Mark issues as fixed and delegate to resolve command UX."""
     patterns: list[str] = getattr(args, "patterns", [])
     attestation: str | None = getattr(args, "attest", None)
@@ -96,7 +96,7 @@ def cmd_plan_resolve(args: argparse.Namespace) -> None:
         log_best_effort_failure(logger, "append plan resolve log entry", exc)
         print(colorize(f"  Note: unable to append plan resolve log entry ({exc}).", "dim"))
 
-    resolve_args = argparse.Namespace(
+    resolve_args = SimpleNamespace(
         status="fixed",
         patterns=patterns,
         note=note,

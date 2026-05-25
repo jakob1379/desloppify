@@ -11,7 +11,7 @@ Tests cover:
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -221,7 +221,7 @@ class TestPrintSubjectiveResetHint:
             "issues": {"f1": {"detector": "smells", "status": "open"}},
             "subjective_assessments": {"Code quality": 5.0},
         }
-        args = argparse.Namespace()
+        args = SimpleNamespace()
         _print_subjective_reset_hint(
             args=args, state=state, all_resolved=["f1"], prev_subjective_scores={}
         )
@@ -239,7 +239,7 @@ class TestPrintSubjectiveResetHint:
             },
             "subjective_assessments": {"Code quality": 5.0},
         }
-        args = argparse.Namespace()
+        args = SimpleNamespace()
         _print_subjective_reset_hint(
             args=args, state=state, all_resolved=["f1"], prev_subjective_scores={}
         )
@@ -425,13 +425,13 @@ from desloppify.app.commands.viz import cmd_tree, cmd_viz  # noqa: E402
 class TestVizCmd:
     @patch("desloppify.app.commands.viz._cmd_viz")
     def test_cmd_viz_delegates(self, mock_inner):
-        args = argparse.Namespace()
+        args = SimpleNamespace()
         cmd_viz(args)
         mock_inner.assert_called_once_with(args)
 
     @patch("desloppify.app.commands.viz._cmd_tree")
     def test_cmd_tree_delegates(self, mock_inner):
-        args = argparse.Namespace()
+        args = SimpleNamespace()
         cmd_tree(args)
         mock_inner.assert_called_once_with(args)
 
@@ -456,7 +456,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file=None,
             validate_import_file=None,
@@ -480,7 +480,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file="/tmp/review.json",
             validate_import_file=None,
@@ -506,7 +506,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file=None,
             validate_import_file="/tmp/review.json",
@@ -530,7 +530,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=True,
             import_file=None,
             validate_import_file=None,
@@ -555,7 +555,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=True,
             import_file="/tmp/review.json",
             validate_import_file=None,
@@ -578,7 +578,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file="/tmp/review.json",
             validate_import_file="/tmp/review.json",
@@ -601,7 +601,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file=None,
             validate_import_file=None,
@@ -624,7 +624,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file="/tmp/review.json",
             validate_import_file=None,
@@ -652,7 +652,7 @@ class TestCmdReviewEntrypoint:
         rt.config = {}
         mock_runtime.return_value = rt
         mock_resolve_lang.return_value = MagicMock(name="python")
-        args = argparse.Namespace(
+        args = SimpleNamespace(
             run_batches=False,
             import_file=None,
             validate_import_file=None,
@@ -674,7 +674,7 @@ class TestCmdReviewEntrypoint:
         rt.state_path = "/tmp/state.json"
         rt.config = {}
         mock_runtime.return_value = rt
-        args = argparse.Namespace()
+        args = SimpleNamespace()
 
         with pytest.raises(CommandError) as exc_info:
             cmd_review(args)
@@ -798,14 +798,14 @@ class TestCmdUpdateSkill:
     @patch("desloppify.app.commands.update_skill.update_installed_skill")
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value="claude")
     def test_valid_interface(self, _mock_resolve, mock_update):
-        args = argparse.Namespace(interface="claude")
+        args = SimpleNamespace(interface="claude")
         cmd_update_skill(args)
         mock_update.assert_called_once_with("claude")
 
     @patch("desloppify.app.commands.update_skill.colorize", side_effect=lambda t, _c: t)
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value=None)
     def test_no_interface_found(self, _mock_resolve, _mock_colorize, capsys):
-        args = argparse.Namespace(interface=None)
+        args = SimpleNamespace(interface=None)
         cmd_update_skill(args)
         out = capsys.readouterr().out
         assert "No installed skill document found" in out
@@ -813,7 +813,7 @@ class TestCmdUpdateSkill:
     @patch("desloppify.app.commands.update_skill.colorize", side_effect=lambda t, _c: t)
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value="unknown_thing")
     def test_unknown_interface(self, _mock_resolve, _mock_colorize, capsys):
-        args = argparse.Namespace(interface="unknown_thing")
+        args = SimpleNamespace(interface="unknown_thing")
         cmd_update_skill(args)
         out = capsys.readouterr().out
         assert "Unknown interface" in out

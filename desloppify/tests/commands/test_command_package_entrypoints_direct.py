@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
+
 import desloppify.app.commands.autofix as autofix_pkg
 import desloppify.app.commands.autofix.cmd as autofix_cmd_mod
 import desloppify.app.commands.backlog as backlog_pkg
@@ -24,8 +25,8 @@ def _assert_entrypoint_delegation(
     command_mod,
     entrypoint_name: str,
 ) -> None:
-    args = argparse.Namespace(path=".")
-    calls: list[argparse.Namespace] = []
+    args = SimpleNamespace(path=".")
+    calls: list[SimpleNamespace] = []
 
     monkeypatch.setattr(command_mod, entrypoint_name, lambda value: calls.append(value))
 

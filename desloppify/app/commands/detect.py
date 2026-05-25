@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
+from types import SimpleNamespace
 
-from desloppify.languages import framework as lang_api
-from desloppify.app.commands.helpers.lang import resolve_lang, resolve_lang_settings
 from desloppify.app.commands.helpers.command_runtime import command_runtime
+from desloppify.app.commands.helpers.lang import resolve_lang, resolve_lang_settings
 from desloppify.app.commands.helpers.runtime_options import (
     LangRuntimeOptionsError,
     print_lang_runtime_options_error,
@@ -16,6 +15,7 @@ from desloppify.app.commands.helpers.runtime_options import (
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 from desloppify.base.registry import DETECTORS
+from desloppify.languages import framework as lang_api
 from desloppify.languages.framework import LangRunOverrides, make_lang_run
 
 
@@ -63,7 +63,7 @@ def _unknown_detector_message(
     )
 
 
-def cmd_detect(args: argparse.Namespace) -> None:
+def cmd_detect(args: SimpleNamespace) -> None:
     """Run a single detector directly (bypass state tracking)."""
     detector_input = args.detector
 

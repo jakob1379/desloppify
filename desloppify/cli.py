@@ -1,26 +1,28 @@
-"""CLI entry point: parse args, load shared context, dispatch command handlers."""
+"""CLI entry point: load shared context and dispatch Typer commands."""
 
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
-from desloppify.app.cli_support.parser import create_parser as _create_parser
-from desloppify.app.commands.helpers.lang import resolve_lang
+import typer
+
+from desloppify.app.cli_support.typer_app import create_app as _create_app
 from desloppify.app.commands.helpers.command_runtime import CommandRuntime
+from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.state import state_path
 from desloppify.app.commands.registry import CommandHandler, get_command_handlers
 from desloppify.base.config import load_config
+from desloppify.base.discovery.paths import get_default_scan_path, get_project_root
 from desloppify.base.discovery.source import set_exclusions
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.fallbacks import log_best_effort_failure
 from desloppify.base.output.terminal import colorize
-from desloppify.base.discovery.paths import get_default_scan_path, get_project_root
 from desloppify.base.registry import detector_names, on_detector_registered
 from desloppify.base.runtime_state import runtime_scope
 from desloppify.languages import available_langs
@@ -71,13 +73,13 @@ def _invalidate_detector_names_cache() -> None:
 on_detector_registered(_invalidate_detector_names_cache)
 
 
-def create_parser() -> argparse.ArgumentParser:
-    """Return the top-level argparse parser."""
-    return _create_parser(langs=available_langs(), detector_names=_get_detector_names())
+def create_typer_app() -> typer.Typer:
+    """Return the top-level Typer application."""
+    return _create_app(langs=available_langs(), detector_names=_get_detector_names())
 
 
 def _apply_persisted_exclusions(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     config: Mapping[str, Any],
 ) -> None:
     """Merge CLI --exclude with persisted config.exclude and apply globally."""
@@ -123,7 +125,7 @@ def _project_root_from_state_path(state_path_value: str | Path | None) -> Path |
     return None
 
 
-def _resolve_default_path(args: argparse.Namespace) -> None:
+def _resolve_default_path(args: SimpleNamespace) -> None:
     """Fill args.path from detected language or default source path.
 
     For the review command, the last scan path (stored in state) is used as the
@@ -155,7 +157,7 @@ def _resolve_default_path(args: argparse.Namespace) -> None:
     )
 
 
-def _load_shared_runtime(args: argparse.Namespace) -> None:
+def _load_shared_runtime(args: SimpleNamespace) -> None:
     """Load config/state and attach shared objects to parsed args."""
     config = load_config()
 
@@ -233,20 +235,8 @@ def _resolve_handler(command: str) -> CommandHandler:
     return get_command_handlers()[command]
 
 
-def _handle_help_command(
-    args: argparse.Namespace,
-    parser: argparse.ArgumentParser,
-) -> None:
-    """Handle explicit help command when present in parser config."""
-    topic = list(getattr(args, "topic", []) or [])
-    try:
-        parser.parse_args([*topic, "--help"])
-    except SystemExit:
-        return
-
-
-def main() -> None:
-    # Ensure Unicode output works on Windows terminals (cp1252 etc.)
+def _configure_unicode_output() -> None:
+    """Ensure Unicode output works on Windows terminals (cp1252 etc.)."""
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             try:
@@ -257,15 +247,9 @@ def main() -> None:
                     getattr(stream, "name", "<stream>"),
                 )
 
-    parser = create_parser()
-    args = parser.parse_args()
-    if not args.command:
-        parser.print_help()
-        return
-    if args.command == "help":
-        _handle_help_command(args, parser)
-        return
 
+def run_command(args: SimpleNamespace) -> None:
+    """Run a command after Typer has parsed the public CLI surface."""
     try:
         with runtime_scope() as runtime:
             inferred = _project_root_from_state_path(getattr(args, "state", None))
@@ -288,6 +272,11 @@ def main() -> None:
     except KeyboardInterrupt:
         print("\nInterrupted.")
         sys.exit(1)
+
+
+def main() -> None:
+    _configure_unicode_output()
+    create_typer_app()()
 
 
 if __name__ == "__main__":

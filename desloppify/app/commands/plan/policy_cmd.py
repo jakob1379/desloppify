@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.engine.plan_state import (
@@ -13,7 +13,7 @@ from desloppify.engine.plan_state import (
 )
 
 
-def cmd_policy_dispatch(args: argparse.Namespace) -> None:
+def cmd_policy_dispatch(args: SimpleNamespace) -> None:
     """Dispatch policy subcommand."""
     action = getattr(args, "policy_action", None)
     if action == "add":
@@ -24,7 +24,7 @@ def cmd_policy_dispatch(args: argparse.Namespace) -> None:
         _cmd_policy_list(args)
 
 
-def _cmd_policy_add(args: argparse.Namespace) -> None:
+def _cmd_policy_add(args: SimpleNamespace) -> None:
     text = getattr(args, "rule_text", "")
     if not text or not text.strip():
         print(colorize("  Rule text is required.", "red"))
@@ -37,7 +37,7 @@ def _cmd_policy_add(args: argparse.Namespace) -> None:
     print(colorize(f"  Added rule #{idx}: {text.strip()}", "green"))
 
 
-def _cmd_policy_list(_args: argparse.Namespace) -> None:
+def _cmd_policy_list(_args: SimpleNamespace) -> None:
     result = load_policy_result()
     _print_policy_load_warning(result)
     policy = result.policy
@@ -57,7 +57,7 @@ def _cmd_policy_list(_args: argparse.Namespace) -> None:
     ))
 
 
-def _cmd_policy_remove(args: argparse.Namespace) -> None:
+def _cmd_policy_remove(args: SimpleNamespace) -> None:
     index = getattr(args, "rule_index", None)
     if index is None:
         print(colorize("  --index is required for remove.", "red"))

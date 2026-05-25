@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.resolve.living_plan as living_plan_mod
 
 
-def _args(*, status: str = "fixed", note: str | None = None) -> argparse.Namespace:
-    return argparse.Namespace(status=status, note=note)
+def _args(*, status: str = "fixed", note: str | None = None) -> SimpleNamespace:
+    return SimpleNamespace(status=status, note=note)
 
 
 def test_capture_cluster_context_returns_remaining_counts() -> None:

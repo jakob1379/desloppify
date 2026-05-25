@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.triage.command as triage_mod
 from desloppify.app.commands.plan.triage.services import TriageServices
-from desloppify.engine._plan.schema import empty_plan
 from desloppify.engine._plan.constants import TRIAGE_STAGE_IDS
+from desloppify.engine._plan.schema import empty_plan
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -79,8 +79,8 @@ def _fake_services(plan, state, save_plan_fn=None):
     )
 
 
-def _fake_args(**overrides) -> argparse.Namespace:
-    """Build an argparse.Namespace with default triage args."""
+def _fake_args(**overrides) -> SimpleNamespace:
+    """Build an SimpleNamespace with default triage args."""
     defaults = {
         "lang": None,
         "path": ".",
@@ -97,7 +97,7 @@ def _fake_args(**overrides) -> argparse.Namespace:
         "dry_run": False,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
 def _patch_triage(monkeypatch, plan, state, save_plan_fn=None):

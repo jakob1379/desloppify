@@ -17,7 +17,7 @@ from desloppify.engine.detectors.orphaned import (
 )
 
 if TYPE_CHECKING:
-    import argparse
+    from types import SimpleNamespace
 
 
 def _set_module(fn: Callable[..., Any], module_name: str | None) -> Callable[..., Any]:
@@ -29,13 +29,13 @@ def _set_module(fn: Callable[..., Any], module_name: str | None) -> Callable[...
 
 def build_standard_detect_registry(
     *,
-    cmd_deps: Callable[[argparse.Namespace], None],
-    cmd_cycles: Callable[[argparse.Namespace], None],
-    cmd_orphaned: Callable[[argparse.Namespace], None],
-    cmd_dupes: Callable[[argparse.Namespace], None],
-    cmd_large: Callable[[argparse.Namespace], None],
-    cmd_complexity: Callable[[argparse.Namespace], None],
-) -> dict[str, Callable[[argparse.Namespace], None]]:
+    cmd_deps: Callable[[SimpleNamespace], None],
+    cmd_cycles: Callable[[SimpleNamespace], None],
+    cmd_orphaned: Callable[[SimpleNamespace], None],
+    cmd_dupes: Callable[[SimpleNamespace], None],
+    cmd_large: Callable[[SimpleNamespace], None],
+    cmd_complexity: Callable[[SimpleNamespace], None],
+) -> dict[str, Callable[[SimpleNamespace], None]]:
     """Build the shared detect command mapping used by language plugins."""
     return {
         "deps": cmd_deps,
@@ -49,9 +49,9 @@ def build_standard_detect_registry(
 
 def compose_detect_registry(
     *,
-    base_registry: dict[str, Callable[[argparse.Namespace], None]],
-    extra_registry: dict[str, Callable[[argparse.Namespace], None]] | None = None,
-) -> dict[str, Callable[[argparse.Namespace], None]]:
+    base_registry: dict[str, Callable[[SimpleNamespace], None]],
+    extra_registry: dict[str, Callable[[SimpleNamespace], None]] | None = None,
+) -> dict[str, Callable[[SimpleNamespace], None]]:
     """Compose a plugin detect registry from standard base + language extras."""
     registry = dict(base_registry)
     if extra_registry:
@@ -61,14 +61,14 @@ def compose_detect_registry(
 
 def build_composed_detect_registry(
     *,
-    cmd_deps: Callable[[argparse.Namespace], None],
-    cmd_cycles: Callable[[argparse.Namespace], None],
-    cmd_orphaned: Callable[[argparse.Namespace], None],
-    cmd_dupes: Callable[[argparse.Namespace], None],
-    cmd_large: Callable[[argparse.Namespace], None],
-    cmd_complexity: Callable[[argparse.Namespace], None],
-    extra_registry: dict[str, Callable[[argparse.Namespace], None]] | None = None,
-) -> dict[str, Callable[[argparse.Namespace], None]]:
+    cmd_deps: Callable[[SimpleNamespace], None],
+    cmd_cycles: Callable[[SimpleNamespace], None],
+    cmd_orphaned: Callable[[SimpleNamespace], None],
+    cmd_dupes: Callable[[SimpleNamespace], None],
+    cmd_large: Callable[[SimpleNamespace], None],
+    cmd_complexity: Callable[[SimpleNamespace], None],
+    extra_registry: dict[str, Callable[[SimpleNamespace], None]] | None = None,
+) -> dict[str, Callable[[SimpleNamespace], None]]:
     """Build the standard detect registry and apply optional extras."""
     return compose_detect_registry(
         base_registry=build_standard_detect_registry(
@@ -90,10 +90,10 @@ def make_cmd_deps(
     import_count_label: str,
     top_imports_label: str,
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Build a deps command for lightweight graph-backed languages."""
 
-    def cmd_deps(args: argparse.Namespace) -> None:
+    def cmd_deps(args: SimpleNamespace) -> None:
         graph = build_dep_graph_fn(Path(args.path))
         rows = [
             {
@@ -136,10 +136,10 @@ def make_cmd_deps(
 
 def make_cmd_cycles(
     *, build_dep_graph_fn, module_name: str | None = None
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Build a cycles command using a dependency graph builder."""
 
-    def cmd_cycles(args: argparse.Namespace) -> None:
+    def cmd_cycles(args: SimpleNamespace) -> None:
         graph = build_dep_graph_fn(Path(args.path))
         entries, _ = detect_cycles(graph)
 
@@ -169,10 +169,10 @@ def make_cmd_orphaned(
     extra_entry_patterns: list[str],
     extra_barrel_names: set[str],
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Build an orphaned-file command for language-specific roots/barrels."""
 
-    def cmd_orphaned(args: argparse.Namespace) -> None:
+    def cmd_orphaned(args: SimpleNamespace) -> None:
         graph = build_dep_graph_fn(Path(args.path))
         entries, _ = detect_orphaned_files(
             Path(args.path),
@@ -214,10 +214,10 @@ def make_cmd_orphaned(
 
 def make_cmd_dupes(
     *, extract_functions_fn, module_name: str | None = None
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Build a duplicate-function command from an extractor."""
 
-    def cmd_dupes(args: argparse.Namespace) -> None:
+    def cmd_dupes(args: SimpleNamespace) -> None:
         functions = extract_functions_fn(Path(args.path))
         entries, _ = detect_duplicates(
             functions,

@@ -27,7 +27,9 @@ from desloppify.app.commands.review.importing.cmd import (
 )
 from desloppify.app.commands.review.importing.flags import ReviewImportConfig
 from desloppify.app.commands.review.prepare import do_prepare as _do_prepare
-from desloppify.app.commands.review.runtime.setup import setup_lang_concrete as _setup_lang
+from desloppify.app.commands.review.runtime.setup import (
+    setup_lang_concrete as _setup_lang,
+)
 from desloppify.base.exception_sets import CommandError
 from desloppify.engine.policy.zones import Zone, ZoneRule
 from desloppify.intelligence.review import (
@@ -875,7 +877,7 @@ class TestCmdReviewPrepare:
         assert blind_packet.exists()
         prompt_files = list(runs_dir.glob("*/prompts/batch-*.md"))
         assert len(prompt_files) == 2
-        prompt_text = prompt_files[0].read_text()
+        prompt_text = "\n".join(path.read_text() for path in sorted(prompt_files))
         assert "Blind packet:" in prompt_text
         assert str(blind_packet) in prompt_text
         assert "Previously flagged issues" in prompt_text

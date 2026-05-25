@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from types import SimpleNamespace
 
-import desloppify.languages.typescript.detectors.smells.helpers as blocks_mod
-import desloppify.languages.typescript.detectors.smells.helpers as line_state_mod
 import desloppify.languages.typescript.detectors.patterns.cli as patterns_cli_mod
 import desloppify.languages.typescript.detectors.react.cli as react_cli_mod
+import desloppify.languages.typescript.detectors.smells.helpers as blocks_mod
+import desloppify.languages.typescript.detectors.smells.helpers as line_state_mod
 
 
 def test_block_helpers_find_body_and_line_info() -> None:
@@ -91,7 +90,7 @@ def test_patterns_cli_json_output(monkeypatch, capsys) -> None:
             ]
         ),
     )
-    args = argparse.Namespace(path=".", json=True, top=5)
+    args = SimpleNamespace(path=".", json=True, top=5)
     patterns_cli_mod.cmd_patterns(args)
     payload = json.loads(capsys.readouterr().out)
     assert payload["areas"] == 1
@@ -106,13 +105,13 @@ def test_react_cli_json_and_empty_paths(monkeypatch, capsys) -> None:
         lambda _path: ([{"file": "/repo/src/a.tsx", "line": 10, "setters": ["setX"]}], {}),
     )
     monkeypatch.setattr(react_cli_mod, "rel", lambda p: str(p).split("/repo/")[-1])
-    args = argparse.Namespace(path=".", json=True, top=5)
+    args = SimpleNamespace(path=".", json=True, top=5)
     react_cli_mod.cmd_react(args)
     payload = json.loads(capsys.readouterr().out)
     assert payload["count"] == 1
     assert payload["entries"][0]["file"] == "src/a.tsx"
 
     monkeypatch.setattr(react_cli_mod, "detect_state_sync", lambda _path: ([], {}))
-    args_plain = argparse.Namespace(path=".", json=False, top=5)
+    args_plain = SimpleNamespace(path=".", json=False, top=5)
     react_cli_mod.cmd_react(args_plain)
     assert "No state sync anti-patterns found." in capsys.readouterr().out

@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-import argparse
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from desloppify.languages.framework import LangRun
 
-from desloppify.app.commands.helpers.lang import resolve_lang, resolve_lang_settings
 from desloppify.app.commands.helpers.command_runtime import command_runtime
+from desloppify.app.commands.helpers.lang import resolve_lang, resolve_lang_settings
 from desloppify.app.commands.helpers.runtime_options import resolve_lang_runtime_options
-from desloppify.base.config import target_strict_score_from_config
 from desloppify.app.commands.scan.coverage import (
     coerce_int as _coerce_int,
 )
@@ -23,9 +22,6 @@ from desloppify.app.commands.scan.coverage import (
 from desloppify.app.commands.scan.coverage import (
     seed_runtime_coverage_warnings as _seed_runtime_coverage_warnings,
 )
-from desloppify.app.commands.scan.plan_reconcile import (
-    reconcile_plan_post_scan as _reconcile_plan_post_scan_impl,
-)
 from desloppify.app.commands.scan.helpers import (
     audit_excluded_dirs,
     collect_codebase_metrics,
@@ -33,18 +29,25 @@ from desloppify.app.commands.scan.helpers import (
     resolve_scan_profile,
     warn_explicit_lang_with_no_files,
 )
+from desloppify.app.commands.scan.plan_reconcile import (
+    reconcile_plan_post_scan as _reconcile_plan_post_scan_impl,
+)
 from desloppify.app.commands.scan.wontfix import (
     augment_with_stale_wontfix_issues as _augment_stale_wontfix_impl,
 )
 from desloppify.base.config import save_config as _save_config
+from desloppify.base.config import target_strict_score_from_config
 from desloppify.base.discovery.file_paths import rel
-from desloppify.base.output.terminal import colorize
+from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.discovery.source import (
     disable_file_cache,
     enable_file_cache,
     get_exclusions,
 )
-from desloppify.base.discovery.paths import get_project_root
+from desloppify.base.output.terminal import colorize
+from desloppify.base.subjective_dimensions import (
+    resettable_default_dimensions,
+)
 from desloppify.engine._state.filtering import path_scoped_issues
 from desloppify.engine._state.merge import MergeScanOptions, merge_scan
 from desloppify.engine._state.noise import (
@@ -52,10 +55,8 @@ from desloppify.engine._state.noise import (
     resolve_issue_noise_settings,
 )
 from desloppify.engine._work_queue.issues import mark_stale_holistic
-from desloppify.engine.planning.scan import PlanScanOptions, generate_issues as generate_plan_issues
-from desloppify.base.subjective_dimensions import (
-    resettable_default_dimensions,
-)
+from desloppify.engine.planning.scan import PlanScanOptions
+from desloppify.engine.planning.scan import generate_issues as generate_plan_issues
 from desloppify.languages.framework import (
     DetectorCoverageRecord,
     LangRunOverrides,
@@ -152,7 +153,7 @@ def _subjective_reset_dimensions(*, lang_name: str | None = None) -> tuple[str, 
 class ScanRuntime:
     """Resolved runtime context for a single scan invocation."""
 
-    args: argparse.Namespace
+    args: SimpleNamespace
     state_path: Path | None
     state: StateModel
     path: Path
@@ -194,7 +195,7 @@ class ScanNoiseSnapshot:
 
 
 def _configure_lang_runtime(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     config: dict[str, object],
     state: StateModel,
     lang: LangRun | None,
@@ -279,7 +280,7 @@ def _reset_subjective_assessments_for_scan_reset(
 
 
 
-def prepare_scan_runtime(args: argparse.Namespace) -> ScanRuntime:
+def prepare_scan_runtime(args: SimpleNamespace) -> ScanRuntime:
     """Resolve state/config/language and apply scan-time runtime settings."""
     path = Path(args.path)
     if not path.is_dir():

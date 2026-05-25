@@ -11,17 +11,16 @@ Both gates can be bypassed:
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.override.misc as misc_mod
 import desloppify.app.commands.plan.override.resolve_cmd as resolve_mod
 import desloppify.app.commands.plan.override.resolve_workflow as resolve_workflow_mod
-from desloppify.engine._plan.schema import empty_plan
 from desloppify.engine._plan.constants import (
     WORKFLOW_CREATE_PLAN_ID,
     WORKFLOW_SCORE_CHECKPOINT_ID,
 )
-
+from desloppify.engine._plan.schema import empty_plan
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -66,7 +65,7 @@ def _state_with_scan_count(count: int = 5) -> dict:
     }
 
 
-def _args(**overrides) -> argparse.Namespace:
+def _args(**overrides) -> SimpleNamespace:
     defaults = {
         "patterns": [WORKFLOW_SCORE_CHECKPOINT_ID],
         "attest": None,
@@ -79,10 +78,10 @@ def _args(**overrides) -> argparse.Namespace:
         "exclude": None,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
-def _scan_gate_args(**overrides) -> argparse.Namespace:
+def _scan_gate_args(**overrides) -> SimpleNamespace:
     defaults = {
         "skip": False,
         "note": None,
@@ -92,7 +91,7 @@ def _scan_gate_args(**overrides) -> argparse.Namespace:
         "exclude": None,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
 def _mock_plan_io(monkeypatch, plan):

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.languages._framework.commands.base import (
     make_cmd_complexity,
@@ -42,27 +42,27 @@ _cmd_orphaned_impl = make_cmd_orphaned(
 _cmd_dupes_impl = make_cmd_dupes(extract_functions_fn=extract_functions)
 
 
-def cmd_large(args: argparse.Namespace) -> None:
+def cmd_large(args: SimpleNamespace) -> None:
     _cmd_large_impl(args)
 
 
-def cmd_complexity(args: argparse.Namespace) -> None:
+def cmd_complexity(args: SimpleNamespace) -> None:
     _cmd_complexity_impl(args)
 
 
-def cmd_deps(args: argparse.Namespace) -> None:
+def cmd_deps(args: SimpleNamespace) -> None:
     _cmd_deps_impl(args)
 
 
-def cmd_cycles(args: argparse.Namespace) -> None:
+def cmd_cycles(args: SimpleNamespace) -> None:
     _cmd_cycles_impl(args)
 
 
-def cmd_orphaned(args: argparse.Namespace) -> None:
+def cmd_orphaned(args: SimpleNamespace) -> None:
     _cmd_orphaned_impl(args)
 
 
-def cmd_dupes(args: argparse.Namespace) -> None:
+def cmd_dupes(args: SimpleNamespace) -> None:
     _cmd_dupes_impl(args)
 
 

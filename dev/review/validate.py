@@ -8,11 +8,13 @@ Usage:
     python review/validate.py              # check everything that exists
 """
 
-import argparse
 import json
 import re
 import sys
 from pathlib import Path
+from typing import Annotated
+
+import typer
 
 RESULTS_DIR = Path(__file__).parent / "results"
 FILENAME_RE = re.compile(r"^(pr|issue)-(\d+)(\.stage2)?\.json$")
@@ -239,12 +241,16 @@ def run(stage: int | None) -> list[str]:
     return errors
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Validate review pipeline results")
-    parser.add_argument("--stage", type=int, choices=[1, 2, 3], help="Validate up to this stage")
-    args = parser.parse_args()
+def main(
+    stage: Annotated[
+        int | None,
+        typer.Option("--stage", help="Validate up to this stage"),
+    ] = None,
+) -> None:
+    if stage is not None and stage not in {1, 2, 3}:
+        raise typer.BadParameter("stage must be one of 1, 2, or 3")
 
-    errors = run(args.stage)
+    errors = run(stage)
 
     if errors:
         print(f"VALIDATION FAILED — {len(errors)} error(s):\n")
@@ -252,7 +258,7 @@ def main():
             print(f"  ✗ {e}")
         sys.exit(1)
     else:
-        stage_label = f"stage {args.stage}" if args.stage else "all stages"
+        stage_label = f"stage {stage}" if stage else "all stages"
         n1 = len(list(RESULTS_DIR.glob("[!_]*.json"))) - len(list(RESULTS_DIR.glob("*.stage2.json")))
         if (RESULTS_DIR / "execution-log.json").exists():
             n1 -= 1
@@ -262,4 +268,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

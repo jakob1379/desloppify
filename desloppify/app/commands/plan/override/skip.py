@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify import state as state_mod
 from desloppify.app.commands.helpers.attestation import (
@@ -14,16 +14,12 @@ from desloppify.app.commands.helpers.attestation import (
 )
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory
-from .io import (
-    _plan_file_for_state,
-    save_plan_state_transactional,
-)
+from desloppify.app.commands.helpers.transition_messages import emit_transition_message
 from desloppify.app.commands.plan.shared.patterns import resolve_ids_from_patterns
 from desloppify.base.config import target_strict_score_from_config
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
-from desloppify.app.commands.helpers.transition_messages import emit_transition_message
 from desloppify.engine._plan.refresh_lifecycle import (
     invalidate_postflight_scan,
 )
@@ -42,6 +38,11 @@ from desloppify.engine.plan_ops import (
 from desloppify.engine.plan_state import (
     load_plan,
     save_plan,
+)
+
+from .io import (
+    _plan_file_for_state,
+    save_plan_state_transactional,
 )
 
 logger = logging.getLogger(__name__)
@@ -187,7 +188,7 @@ def _save_skip_plan_state(
     )
 
 
-def cmd_plan_skip(args: argparse.Namespace) -> None:
+def cmd_plan_skip(args: SimpleNamespace) -> None:
     """Skip issues — unified command for temporary/permanent/false-positive."""
     runtime = command_runtime(args)
     state = runtime.state
@@ -296,7 +297,7 @@ def cmd_plan_skip(args: argparse.Namespace) -> None:
         emit_transition_message(transition_phase)
 
 
-def cmd_plan_unskip(args: argparse.Namespace) -> None:
+def cmd_plan_unskip(args: SimpleNamespace) -> None:
     """Unskip issues — bring back to queue."""
     runtime = command_runtime(args)
     state = runtime.state
@@ -372,7 +373,7 @@ def cmd_plan_unskip(args: argparse.Namespace) -> None:
         emit_transition_message(transition_phase)
 
 
-def cmd_plan_backlog(args: argparse.Namespace) -> None:
+def cmd_plan_backlog(args: SimpleNamespace) -> None:
     """Move deferred items to backlog — remove from plan tracking entirely."""
     runtime = command_runtime(args)
     state = runtime.state

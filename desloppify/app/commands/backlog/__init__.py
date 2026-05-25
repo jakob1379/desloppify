@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_backlog(args: argparse.Namespace) -> None:
+def cmd_backlog(args: SimpleNamespace) -> None:
     """Dispatch to the backlog command implementation."""
     from .cmd import cmd_backlog as _cmd_backlog
 

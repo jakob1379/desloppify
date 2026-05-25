@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import desloppify.app.commands.plan.commit_log.dispatch as commit_log_mod
-
 
 # ---------------------------------------------------------------------------
 # Helpers — realistic plan/state builders
@@ -50,13 +48,13 @@ def _record_args(
     branch: str | None = None,
     note: str | None = None,
     only: list[str] | None = None,
-) -> argparse.Namespace:
+) -> SimpleNamespace:
     normalized_only = [
         pattern.strip()
         for pattern in (only or [])
         if isinstance(pattern, str) and pattern.strip()
     ]
-    return argparse.Namespace(
+    return SimpleNamespace(
         sha=(sha.strip() if isinstance(sha, str) else sha),
         branch=(branch.strip() if isinstance(branch, str) else branch),
         note=(note.strip() if isinstance(note, str) else note),
@@ -64,8 +62,8 @@ def _record_args(
     )
 
 
-def _history_args(*, top: int = 10) -> argparse.Namespace:
-    return argparse.Namespace(top=top)
+def _history_args(*, top: int = 10) -> SimpleNamespace:
+    return SimpleNamespace(top=top)
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +74,7 @@ def test_dispatch_warns_when_disabled(monkeypatch, capsys) -> None:
     monkeypatch.setattr(commit_log_mod, "load_config", lambda: {"commit_tracking_enabled": False})
     monkeypatch.setattr(commit_log_mod, "colorize", lambda t, _s: t)
 
-    commit_log_mod.cmd_commit_log_dispatch(argparse.Namespace(commit_log_action=None))
+    commit_log_mod.cmd_commit_log_dispatch(SimpleNamespace(commit_log_action=None))
 
     out = capsys.readouterr().out
     assert "Commit tracking is disabled" in out
@@ -89,7 +87,7 @@ def test_dispatch_no_action_shows_status(monkeypatch, capsys) -> None:
     monkeypatch.setattr(commit_log_mod, "detect_git_context", lambda: _git_context())
     monkeypatch.setattr(commit_log_mod, "colorize", lambda t, _s: t)
 
-    commit_log_mod.cmd_commit_log_dispatch(argparse.Namespace(commit_log_action=None))
+    commit_log_mod.cmd_commit_log_dispatch(SimpleNamespace(commit_log_action=None))
 
     out = capsys.readouterr().out
     assert "Commit Tracking Status" in out
@@ -108,7 +106,7 @@ def test_dispatch_routes_record_action(monkeypatch, capsys) -> None:
     monkeypatch.setattr(commit_log_mod, "save_plan", lambda p: saved.append(p))
     monkeypatch.setattr(commit_log_mod, "colorize", lambda t, _s: t)
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         commit_log_action="record", sha=None, branch=None, note=None, only=None,
     )
     commit_log_mod.cmd_commit_log_dispatch(args)
@@ -389,7 +387,7 @@ def test_history_top_limits(monkeypatch, capsys) -> None:
     lines = out.strip().split("\n")
     # Should contain records for index 3 and 4, not 0-2
     # SHAs are "sha0000000003" -> "sha0000" (7 chars), etc.
-    issue_lines = [l for l in lines if "x::" in l]
+    issue_lines = [line for line in lines if "x::" in line]
     assert len(issue_lines) == 2
     assert "x::4" in out
     assert "x::3" in out
