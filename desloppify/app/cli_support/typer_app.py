@@ -11,37 +11,6 @@ from typing import Annotated, Any, ClassVar
 import typer
 from typer.core import TyperCommand
 
-USAGE_EXAMPLES = """
-workflow:
-  scan       Run detectors, update state, show diff
-  status     Score dashboard with dimension health
-  next       Show the next execution item from the living plan
-  backlog    Show broader backlog items not currently in execution
-  plan       Living plan: prioritize, cluster, resolve, skip, annotate
-
-investigate:
-  show       Dig into issues by file/dir/detector/ID
-  tree       Annotated codebase tree (zoom with --focus)
-  viz        Interactive HTML treemap
-  detect     Run a single detector directly (bypass state)
-
-improve:
-  autofix    Auto-fix mechanical issues
-  suppress   Suppress issues matching a pattern
-  exclude    Exclude path pattern from scanning
-  move       Move file/dir and update import references
-  review     Holistic subjective review (LLM-based)
-
-configure:
-  zone       Show/set zone classifications
-  config     Project configuration
-  langs      List language plugins
-  dev        Developer utilities
-  setup         Install bundled global AI skill files
-  update-skill  Install/update agent skill document
-"""
-
-
 class ScanProfile(StrEnum):
     objective = "objective"
     full = "full"
@@ -890,4 +859,4 @@ def create_app(*, langs: list[str], detector_names: list[str]) -> typer.Typer:
     return app
 
 
-__all__ = ["USAGE_EXAMPLES", "create_app"]
+__all__ = ["create_app"]
