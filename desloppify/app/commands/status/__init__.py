@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_status(args: argparse.Namespace) -> None:
+def cmd_status(args: SimpleNamespace) -> None:
     """Dispatch to the status command implementation."""
     from .cmd import cmd_status as _cmd_status
 

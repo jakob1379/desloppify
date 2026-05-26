@@ -2,33 +2,23 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
 from dataclasses import dataclass
+from types import SimpleNamespace
 from typing import Literal
 
 from desloppify import state as state_mod
 from desloppify.app.commands.helpers.state import state_path
+from desloppify.app.commands.helpers.transition_messages import emit_transition_message
 from desloppify.app.commands.plan.triage.review_coverage import (
     has_open_review_issues,
 )
-from desloppify.app.commands.helpers.transition_messages import emit_transition_message
-from desloppify.base.config import target_strict_score_from_config
-from .resolve_helpers import blocked_triage_stages
 from desloppify.app.commands.plan.triage.stage_queue import (
     has_triage_in_queue,
     inject_triage_stages,
 )
+from desloppify.base.config import target_strict_score_from_config
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    save_plan,
-)
-from desloppify.engine.plan_ops import (
-    append_log_entry,
-    auto_complete_steps,
-    purge_ids,
-)
 from desloppify.engine._plan.constants import (
     WORKFLOW_CREATE_PLAN_ID,
     WORKFLOW_SCORE_CHECKPOINT_ID,
@@ -42,12 +32,23 @@ from desloppify.engine._state.progression import (
     maybe_append_entered_planning,
     maybe_append_execution_drain,
 )
-
-_logger = logging.getLogger(__name__)
+from desloppify.engine.plan_ops import (
+    append_log_entry,
+    auto_complete_steps,
+    purge_ids,
+)
+from desloppify.engine.plan_state import (
+    load_plan,
+    save_plan,
+)
 from desloppify.engine.plan_triage import (
     triage_manual_stage_command,
     triage_runner_commands,
 )
+
+from .resolve_helpers import blocked_triage_stages
+
+_logger = logging.getLogger(__name__)
 
 WORKFLOW_GATE_IDS = frozenset({WORKFLOW_SCORE_CHECKPOINT_ID, WORKFLOW_CREATE_PLAN_ID})
 _WORKFLOW_PLAN_JUST_RESOLVED_KEY = "workflow_plan_just_resolved"
@@ -255,7 +256,7 @@ def _handle_missing_triage_stages(
 
 
 def _scan_gate_status(
-    args: argparse.Namespace, plan: dict
+    args: SimpleNamespace, plan: dict
 ) -> tuple[bool, int, int] | None:
     scan_count_at_start = plan.get("scan_count_at_plan_start")
     if scan_count_at_start is None:
@@ -312,7 +313,7 @@ def _print_scan_gate_block(
 
 
 def _handle_scan_gate(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     *,
     gated_ids: list[str],
@@ -364,7 +365,7 @@ def _finalize_workflow_resolution(
 
 
 def _reconcile_if_queue_drained(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     *,
     synthetic_ids: list[str],
@@ -410,7 +411,7 @@ def _reconcile_if_queue_drained(
 
 
 def resolve_workflow_patterns(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     synthetic_ids: list[str],
     real_patterns: list[str],

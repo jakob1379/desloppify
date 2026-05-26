@@ -9,10 +9,10 @@ Capabilities:
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_plan(args: argparse.Namespace) -> None:
+def cmd_plan(args: SimpleNamespace) -> None:
     """Dispatch to the plan command implementation."""
     from .cmd import cmd_plan as _cmd_plan
 

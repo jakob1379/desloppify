@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.base.discovery.file_paths import rel
@@ -22,8 +22,10 @@ from desloppify.languages._framework.commands.registry import (
     make_cmd_dupes,
     make_cmd_orphaned,
 )
-from desloppify.languages._framework.generic_parts.tool_runner import ToolRunResult
-from desloppify.languages._framework.generic_parts.tool_runner import run_tool_result
+from desloppify.languages._framework.generic_parts.tool_runner import (
+    ToolRunResult,
+    run_tool_result,
+)
 from desloppify.languages.rust.detectors import (
     detect_async_locking,
     detect_doctest_hygiene,
@@ -47,13 +49,17 @@ from desloppify.languages.rust.phases import (
 )
 from desloppify.languages.rust.tools import (
     CARGO_ERROR_CMD as RUST_CHECK_CMD,
+)
+from desloppify.languages.rust.tools import (
     CLIPPY_WARNING_CMD as RUST_CLIPPY_CMD,
+)
+from desloppify.languages.rust.tools import (
     parse_cargo_errors,
     parse_clippy_messages,
     run_rustdoc_result,
 )
 
-DetectCommand = Callable[[argparse.Namespace], None]
+DetectCommand = Callable[[SimpleNamespace], None]
 EntryDetector = Callable[[Path], tuple[list[dict[str, Any]], int]]
 ToolResultRunner = Callable[[Path], ToolRunResult]
 
@@ -77,7 +83,7 @@ cmd_deps = make_cmd_deps(
 )
 
 
-def cmd_cycles(args: argparse.Namespace) -> None:
+def cmd_cycles(args: SimpleNamespace) -> None:
     """Report Rust cycle detection as intentionally disabled."""
     if getattr(args, "json", False):
         print(json.dumps({"count": 0, "entries": []}, indent=2))
@@ -110,7 +116,7 @@ def _make_tool_detect_command(
     label: str,
     runner: ToolResultRunner,
 ) -> DetectCommand:
-    def command(args: argparse.Namespace) -> None:
+    def command(args: SimpleNamespace) -> None:
         result = runner(Path(args.path))
         if result.status == "error":
             payload = {
@@ -157,7 +163,7 @@ def _make_entry_detect_command(
     label: str,
     detector_fn: EntryDetector,
 ) -> DetectCommand:
-    def command(args: argparse.Namespace) -> None:
+    def command(args: SimpleNamespace) -> None:
         entries, _ = detector_fn(Path(args.path))
         display_entries(
             args,

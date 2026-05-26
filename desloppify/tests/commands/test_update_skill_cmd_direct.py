@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 import desloppify.app.commands.update_skill.cmd as update_skill_cmd_mod
 
@@ -99,7 +99,7 @@ def test_update_installed_skill_handles_download_and_shared_file_write(
 def test_cmd_update_skill_handles_missing_and_unknown_interfaces(monkeypatch, capsys) -> None:
     monkeypatch.setattr(update_skill_cmd_mod, "resolve_interface", lambda _explicit=None: None)
     monkeypatch.setattr(update_skill_cmd_mod, "colorize", lambda text, _style: text)
-    update_skill_cmd_mod.cmd_update_skill(argparse.Namespace(interface=None))
+    update_skill_cmd_mod.cmd_update_skill(SimpleNamespace(interface=None))
     out = capsys.readouterr().out
     assert "No installed skill document found." in out
 
@@ -108,6 +108,6 @@ def test_cmd_update_skill_handles_missing_and_unknown_interfaces(monkeypatch, ca
         "resolve_interface",
         lambda _explicit=None: "unknown_thing",
     )
-    update_skill_cmd_mod.cmd_update_skill(argparse.Namespace(interface=None))
+    update_skill_cmd_mod.cmd_update_skill(SimpleNamespace(interface=None))
     out = capsys.readouterr().out
     assert "Unknown interface 'unknown_thing'." in out

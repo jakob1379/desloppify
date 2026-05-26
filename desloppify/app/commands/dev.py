@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-import argparse
 import ast
 import keyword
 import re
+from types import SimpleNamespace
 
 from desloppify.app.commands.dev_scaffold_templates import build_scaffold_files
 from desloppify.base.discovery.file_paths import safe_write_text
+from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
-from desloppify.base.discovery.paths import get_project_root
 
 
-def cmd_dev(args: argparse.Namespace) -> None:
+def cmd_dev(args: SimpleNamespace) -> None:
     """Dispatch developer subcommands."""
     action = getattr(args, "dev_action", None)
     if action == "scaffold-lang":

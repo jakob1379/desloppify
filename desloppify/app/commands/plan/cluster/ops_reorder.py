@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
+from desloppify.app.commands.plan.reorder_handlers import resolve_target
 from desloppify.app.commands.plan.shared.cluster_membership import cluster_issue_ids
 from desloppify.app.commands.plan.shared.patterns import resolve_ids_from_patterns
-from desloppify.app.commands.plan.reorder_handlers import resolve_target
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    save_plan,
-)
 from desloppify.engine.plan_ops import (
     append_log_entry,
     move_items,
+)
+from desloppify.engine.plan_state import (
+    load_plan,
+    save_plan,
 )
 
 
@@ -120,7 +120,7 @@ def _validate_cluster_members(
 
 
 def _resolve_item_reorder_context(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     plan: dict,
     clusters: dict,
@@ -153,7 +153,7 @@ def _resolve_reorder_offset(position: str, target: str | None) -> tuple[str | No
 
 
 def _reorder_within_cluster(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     clusters: dict,
     cluster_names: list[str],
@@ -242,7 +242,7 @@ def _reorder_whole_clusters(
     print(colorize(f"  Moved cluster(s) {label} ({count} items) to {position}.", "green"))
 
 
-def _cmd_cluster_reorder(args: argparse.Namespace) -> None:
+def _cmd_cluster_reorder(args: SimpleNamespace) -> None:
     raw_names: str = getattr(args, "cluster_names", "") or getattr(args, "cluster_name", "")
     cluster_names: list[str] = [n.strip() for n in raw_names.split(",") if n.strip()]
     position: str = getattr(args, "position", "top")

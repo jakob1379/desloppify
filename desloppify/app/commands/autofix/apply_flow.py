@@ -2,24 +2,24 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
+import desloppify.intelligence.narrative.core as narrative_mod
 from desloppify import state as state_mod
+from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.query import write_query
 from desloppify.app.commands.helpers.queue_progress import show_score_with_plan_context
-from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import state_path
 from desloppify.base.discovery.file_paths import rel
 from desloppify.base.output.terminal import colorize
-import desloppify.intelligence.narrative.core as narrative_mod
 
 from .apply_retro import (
-    _cascade_unused_import_cleanup,
     _SKIP_REASON_LABELS,
+    _cascade_unused_import_cleanup,
     _print_fix_retro,
     _resolve_fixer_results,
     _warn_uncommitted_changes,
@@ -73,7 +73,7 @@ def _print_fix_summary(
 
 
 def _apply_and_report(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     path: Path,
     fixer: FixerConfig,
     fixer_name: str,
@@ -133,7 +133,7 @@ def _apply_and_report(
 
 
 def _report_dry_run(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     fixer_name: str,
     entries: list[dict],
     results: list[dict],

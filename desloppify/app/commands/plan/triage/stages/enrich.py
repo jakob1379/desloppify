@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
-import argparse
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 from desloppify.base.output.user_message import print_user_message
 from desloppify.engine.plan_triage import compute_triage_progress
 
-from .records import record_enrich_stage, resolve_reusable_report
-from ..validation.enrich_quality import evaluate_enrich_quality
+from ..completion_flow import count_log_activity_since
+from ..review_coverage import (
+    active_triage_issue_ids,
+    open_review_ids_from_state,
+)
+from ..services import TriageServices, default_triage_services
+from ..stage_queue import has_triage_in_queue, print_cascade_clear_feedback
 from ..validation.enrich_checks import (
     _enrich_report_or_error,
     _require_organize_stage_for_enrich,
@@ -20,13 +25,8 @@ from ..validation.enrich_checks import (
     _steps_without_effort,
     _underspecified_steps,
 )
-from ..completion_flow import count_log_activity_since
-from ..review_coverage import (
-    active_triage_issue_ids,
-    open_review_ids_from_state,
-)
-from ..stage_queue import has_triage_in_queue, print_cascade_clear_feedback
-from ..services import TriageServices, default_triage_services
+from ..validation.enrich_quality import evaluate_enrich_quality
+from .records import record_enrich_stage, resolve_reusable_report
 
 ColorizeFn = Callable[[str, str], str]
 
@@ -56,7 +56,7 @@ class EnrichStageDeps:
 
 def _resolve_enrich_stage_context(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices | None,
     deps: EnrichStageDeps,
 ) -> tuple[TriageServices, dict, dict, dict, str | None, str | None]:
@@ -223,7 +223,7 @@ def _print_enrich_warnings(
 
 
 def run_stage_enrich(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None,
     deps: EnrichStageDeps | None = None,
@@ -338,7 +338,7 @@ def run_stage_enrich(
 
 
 def cmd_stage_enrich(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

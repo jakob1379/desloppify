@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify import state as state_mod
 from desloppify.app.commands.helpers.command_runtime import command_runtime
@@ -59,7 +59,7 @@ def _purge_removed_ids_from_plan(state_file: Path, removed_ids: list[str]) -> in
     return purged
 
 
-def cmd_exclude(args: argparse.Namespace) -> None:
+def cmd_exclude(args: SimpleNamespace) -> None:
     """Add a path pattern to the exclude list and clean cached queue/state."""
     runtime = command_runtime(args)
     config = runtime.config

@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
 
-from ..display.dashboard import print_organize_result
 from ..completion_flow import count_log_activity_since
+from ..display.dashboard import print_organize_result
 from ..review_coverage import open_review_ids_from_state
-from ..stage_queue import has_triage_in_queue
 from ..services import TriageServices, default_triage_services
-from ..validation.stage_policy import (
-    ReflectAutoConfirmDeps,
-    auto_confirm_reflect_for_organize,
-)
+from ..stage_queue import has_triage_in_queue
 from ..validation.organize_policy import (
     _clusters_enriched_or_error,
     _manual_clusters_or_error,
@@ -23,7 +19,11 @@ from ..validation.organize_policy import (
     _validate_organize_against_ledger_or_error,
     validate_backlog_promotions_executed,
 )
-from ..validation.stage_policy import require_prerequisite
+from ..validation.stage_policy import (
+    ReflectAutoConfirmDeps,
+    auto_confirm_reflect_for_organize,
+    require_prerequisite,
+)
 from .records import record_organize_stage
 
 
@@ -101,7 +101,7 @@ def _enforce_cluster_activity_for_organize(
 
 def _validate_organize_submission(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     plan: dict,
     state: dict,
     stages: dict,
@@ -204,7 +204,7 @@ def _persist_organize_stage(
 
 
 def _cmd_stage_organize(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:
@@ -270,7 +270,7 @@ def _cmd_stage_organize(
 
 
 def cmd_stage_organize(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

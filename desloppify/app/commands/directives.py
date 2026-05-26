@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.base.config import save_config
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
+
 # Display phase names accepted as directive hooks.
 _DISPLAY_PHASES = frozenset({
     "review_initial", "review", "assessment", "workflow", "triage", "execute", "scan",
@@ -62,7 +63,7 @@ _EXAMPLE_DIRECTIVES = {
 }
 
 
-def cmd_directives(args: argparse.Namespace) -> None:
+def cmd_directives(args: SimpleNamespace) -> None:
     """Handle directives subcommands: show, set, unset."""
     action = getattr(args, "directives_action", None)
     if action == "set":
@@ -73,7 +74,7 @@ def cmd_directives(args: argparse.Namespace) -> None:
         _directives_show(args)
 
 
-def _directives_show(args: argparse.Namespace) -> None:
+def _directives_show(args: SimpleNamespace) -> None:
     """Show all phases with their directives (if configured)."""
     config = command_runtime(args).config
     messages = config.get("transition_messages", {})
@@ -122,7 +123,7 @@ def _directives_show(args: argparse.Namespace) -> None:
     print()
 
 
-def _directives_set(args: argparse.Namespace) -> None:
+def _directives_set(args: SimpleNamespace) -> None:
     """Set a directive for a lifecycle phase."""
     phase = args.phase
     text = args.message
@@ -147,7 +148,7 @@ def _directives_set(args: argparse.Namespace) -> None:
     print(f"    {text}")
 
 
-def _directives_unset(args: argparse.Namespace) -> None:
+def _directives_unset(args: SimpleNamespace) -> None:
     """Remove a directive for a lifecycle phase."""
     phase = args.phase
 

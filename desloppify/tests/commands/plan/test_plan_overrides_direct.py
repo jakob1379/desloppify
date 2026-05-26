@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -100,7 +99,7 @@ def test_override_resolve_cmd_confirm_allows_small_cluster(monkeypatch) -> None:
         }
     }
     plan = {"clusters": {"small": {"issue_ids": ["i1", "i2"]}}}
-    delegated: list[argparse.Namespace] = []
+    delegated: list[SimpleNamespace] = []
     log_entries: list[dict] = []
 
     monkeypatch.setattr(
@@ -118,7 +117,7 @@ def test_override_resolve_cmd_confirm_allows_small_cluster(monkeypatch) -> None:
     monkeypatch.setattr(override_resolve_cmd_mod, "cmd_resolve", delegated.append)
 
     override_resolve_cmd_mod.cmd_plan_resolve(
-        argparse.Namespace(
+        SimpleNamespace(
             patterns=["small"],
             attest=None,
             note="resolved the small cluster by applying the reviewed fix",
@@ -139,7 +138,7 @@ def test_override_resolve_cmd_confirm_allows_small_cluster(monkeypatch) -> None:
 
 
 def test_override_resolve_cmd_confirm_requires_note(capsys) -> None:
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         patterns=["unused::src/a.py::X"],
         attest=None,
         note=None,
@@ -180,7 +179,7 @@ def test_override_resolve_cmd_handles_synthetic_only_resolution(
     )
     monkeypatch.setattr(resolve_workflow_mod, "save_plan", lambda *_a, **_k: None)
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         patterns=["triage::observe"],
         attest=None,
         note=None,
@@ -224,7 +223,7 @@ def test_resolve_workflow_patterns_triage_gate_blocks_and_logs(
         lambda _plan, action, **kwargs: logs.append((action, kwargs)),
     )
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         force_resolve=False, state=None, lang=None, path=".", exclude=None
     )
     outcome = resolve_workflow_mod.resolve_workflow_patterns(
@@ -258,7 +257,7 @@ def test_resolve_workflow_patterns_force_resolve_requires_long_note(
         resolve_workflow_mod, "append_log_entry", lambda *_a, **_k: None
     )
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         force_resolve=True, state=None, lang=None, path=".", exclude=None
     )
     outcome = resolve_workflow_mod.resolve_workflow_patterns(
@@ -302,7 +301,7 @@ def test_resolve_workflow_patterns_scan_gate_blocks_without_new_scan(
         lambda _plan, action, **kwargs: logs.append((action, kwargs)),
     )
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         force_resolve=False, state=None, lang=None, path=".", exclude=None
     )
     outcome = resolve_workflow_mod.resolve_workflow_patterns(
@@ -379,7 +378,7 @@ def test_resolve_workflow_patterns_reconciles_when_create_plan_drains_queue(
         )(),
     )
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         force_resolve=False, state=None, lang=None, path=".", exclude=None
     )
     outcome = resolve_workflow_mod.resolve_workflow_patterns(
@@ -403,7 +402,7 @@ def test_cmd_plan_resolve_workflow_gate_integration_paths(monkeypatch, capsys) -
     """Command-level workflow gating smoke: triage block, short forced note, scan gate."""
     current_plan: dict = {}
     state = {"scan_count": 0}
-    resolve_calls: list[argparse.Namespace] = []
+    resolve_calls: list[SimpleNamespace] = []
 
     monkeypatch.setattr(resolve_workflow_mod, "load_plan", lambda: current_plan)
     monkeypatch.setattr(resolve_workflow_mod, "blocked_triage_stages", lambda _plan: {})
@@ -429,7 +428,7 @@ def test_cmd_plan_resolve_workflow_gate_integration_paths(monkeypatch, capsys) -
         "epic_triage_meta": {"triage_stages": {}},
     }
     override_resolve_cmd_mod.cmd_plan_resolve(
-        argparse.Namespace(
+        SimpleNamespace(
             patterns=[resolve_workflow_mod.WORKFLOW_CREATE_PLAN_ID],
             attest=None,
             note=None,
@@ -448,7 +447,7 @@ def test_cmd_plan_resolve_workflow_gate_integration_paths(monkeypatch, capsys) -
         "epic_triage_meta": {"triage_stages": {}},
     }
     override_resolve_cmd_mod.cmd_plan_resolve(
-        argparse.Namespace(
+        SimpleNamespace(
             patterns=[resolve_workflow_mod.WORKFLOW_CREATE_PLAN_ID],
             attest=None,
             note="too short",
@@ -473,7 +472,7 @@ def test_cmd_plan_resolve_workflow_gate_integration_paths(monkeypatch, capsys) -
     }
     state["scan_count"] = 4
     override_resolve_cmd_mod.cmd_plan_resolve(
-        argparse.Namespace(
+        SimpleNamespace(
             patterns=[resolve_workflow_mod.WORKFLOW_SCORE_CHECKPOINT_ID],
             attest=None,
             note=None,
@@ -513,13 +512,13 @@ def test_override_misc_focus_and_scan_gate_paths(monkeypatch, capsys) -> None:
     )
 
     override_misc_mod.cmd_plan_focus(
-        argparse.Namespace(clear=False, cluster_name="alpha")
+        SimpleNamespace(clear=False, cluster_name="alpha")
     )
     out_focus = capsys.readouterr().out
     assert "Focused on: alpha" in out_focus
     assert plan["active_cluster"] == "alpha"
 
-    override_misc_mod.cmd_plan_focus(argparse.Namespace(clear=True, cluster_name=None))
+    override_misc_mod.cmd_plan_focus(SimpleNamespace(clear=True, cluster_name=None))
     out_clear = capsys.readouterr().out
     assert "Focus cleared" in out_clear
 
@@ -530,12 +529,12 @@ def test_override_misc_focus_and_scan_gate_paths(monkeypatch, capsys) -> None:
         override_misc_mod, "load_state", lambda _path: {"scan_count": 3}
     )
 
-    override_misc_mod.cmd_plan_scan_gate(argparse.Namespace(skip=False, note=None))
+    override_misc_mod.cmd_plan_scan_gate(SimpleNamespace(skip=False, note=None))
     out_blocked = capsys.readouterr().out
     assert "Scan gate: BLOCKED" in out_blocked
 
     override_misc_mod.cmd_plan_scan_gate(
-        argparse.Namespace(skip=True, note="too short")
+        SimpleNamespace(skip=True, note="too short")
     )
     out_short = capsys.readouterr().out
     assert "requires --note with at least 50 chars" in out_short
@@ -544,7 +543,7 @@ def test_override_misc_focus_and_scan_gate_paths(monkeypatch, capsys) -> None:
         "Skipping scan gate in this direct test because we are verifying "
         "guard behavior and not advancing a real cycle."
     )
-    override_misc_mod.cmd_plan_scan_gate(argparse.Namespace(skip=True, note=long_note))
+    override_misc_mod.cmd_plan_scan_gate(SimpleNamespace(skip=True, note=long_note))
     out_skip = capsys.readouterr().out
     assert "marked as satisfied" in out_skip
     assert plan["scan_gate_skipped"] is True
@@ -578,7 +577,7 @@ def test_plan_promote_moves_backlog_items_into_queue(monkeypatch, capsys) -> Non
     monkeypatch.setattr(reorder_handlers_mod, "move_items", _move_items)
 
     reorder_handlers_mod.cmd_plan_promote(
-        argparse.Namespace(patterns=["unused"], position="top", target=None)
+        SimpleNamespace(patterns=["unused"], position="top", target=None)
     )
     out = capsys.readouterr().out
 
@@ -610,7 +609,7 @@ def test_plan_promote_filters_resolved_cluster_members(monkeypatch, capsys) -> N
     monkeypatch.setattr(reorder_handlers_mod, "append_log_entry", lambda *_a, **_k: None)
 
     reorder_handlers_mod.cmd_plan_promote(
-        argparse.Namespace(patterns=["cluster-a"], position="top", target=None)
+        SimpleNamespace(patterns=["cluster-a"], position="top", target=None)
     )
     out = capsys.readouterr().out
 
@@ -633,7 +632,7 @@ def test_plan_promote_noops_when_cluster_has_no_actionable_members(monkeypatch, 
     monkeypatch.setattr(reorder_handlers_mod, "save_plan", lambda plan_obj: saved.append(plan_obj))
 
     reorder_handlers_mod.cmd_plan_promote(
-        argparse.Namespace(patterns=["cluster-a"], position="top", target=None)
+        SimpleNamespace(patterns=["cluster-a"], position="top", target=None)
     )
     out = capsys.readouterr().out
 
@@ -694,7 +693,7 @@ def test_override_skip_helpers_and_commands(monkeypatch, capsys) -> None:
 
     with pytest.raises(CommandError):
         override_skip_mod.cmd_plan_skip(
-            argparse.Namespace(
+            SimpleNamespace(
                 patterns=["review::*"],
                 reason=None,
                 review_after=None,
@@ -735,7 +734,7 @@ def test_override_skip_helpers_and_commands(monkeypatch, capsys) -> None:
         lambda **_kwargs: None,
     )
 
-    override_skip_mod.cmd_plan_unskip(argparse.Namespace(patterns=["i1"], force=False))
+    override_skip_mod.cmd_plan_unskip(SimpleNamespace(patterns=["i1"], force=False))
     out = capsys.readouterr().out
     assert "Unskipped 1 item(s)" in out
 
@@ -797,7 +796,7 @@ def test_cmd_plan_skip_reconciles_with_fresh_state_after_invalidation(
     monkeypatch.setattr(override_skip_mod, "print_user_message", lambda _msg: None)
 
     override_skip_mod.cmd_plan_skip(
-        argparse.Namespace(
+        SimpleNamespace(
             patterns=["i1"],
             reason=None,
             review_after=None,
@@ -873,7 +872,7 @@ def test_cmd_plan_unskip_reconciles_with_reopened_state(monkeypatch) -> None:
         lambda phase: seen.append(("emit", phase)),
     )
 
-    override_skip_mod.cmd_plan_unskip(argparse.Namespace(patterns=["i1"], force=False))
+    override_skip_mod.cmd_plan_unskip(SimpleNamespace(patterns=["i1"], force=False))
 
     assert ("target", {"target_strict_score": 92}) in seen
     assert ("reconcile", fresh_state, 92.0) in seen
@@ -937,7 +936,7 @@ def test_cmd_plan_backlog_reconciles_after_invalidation(monkeypatch) -> None:
         lambda phase: seen.append(("emit", phase)),
     )
 
-    override_skip_mod.cmd_plan_backlog(argparse.Namespace(patterns=["i1"]))
+    override_skip_mod.cmd_plan_backlog(SimpleNamespace(patterns=["i1"]))
 
     assert ("target", {"target_strict_score": 93}) in seen
     assert ("reconcile", state_data, 93.0) in seen
@@ -993,7 +992,7 @@ def test_cmd_plan_reopen_reconciles_after_invalidation(monkeypatch) -> None:
         lambda phase: seen.append(("emit", phase)),
     )
 
-    override_misc_mod.cmd_plan_reopen(argparse.Namespace(patterns=["i1"]))
+    override_misc_mod.cmd_plan_reopen(SimpleNamespace(patterns=["i1"]))
 
     assert ("target", {"target_strict_score": 94}) in seen
     assert ("reconcile", state_data, 94.0) in seen
@@ -1012,7 +1011,7 @@ def test_cmd_plan_skip_invalid_permanent_skip_exits_nonzero(monkeypatch) -> None
 
     with pytest.raises(CommandError) as excinfo:
         override_skip_mod.cmd_plan_skip(
-            argparse.Namespace(
+            SimpleNamespace(
                 patterns=["review::foo::deadbeef"],
                 reason=None,
                 review_after=None,

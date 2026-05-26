@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -165,14 +165,14 @@ class TestCmdUpdateSkill:
     @patch("desloppify.app.commands.update_skill.update_installed_skill")
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value="claude")
     def test_valid_interface(self, _mock_resolve, mock_update):
-        args = argparse.Namespace(interface="claude")
+        args = SimpleNamespace(interface="claude")
         cmd_update_skill(args)
         mock_update.assert_called_once_with("claude")
 
     @patch("desloppify.app.commands.update_skill.colorize", side_effect=lambda t, _c: t)
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value=None)
     def test_no_interface_found(self, _mock_resolve, _mock_colorize, capsys):
-        args = argparse.Namespace(interface=None)
+        args = SimpleNamespace(interface=None)
         cmd_update_skill(args)
         out = capsys.readouterr().out
         assert "No installed skill document found" in out
@@ -180,7 +180,7 @@ class TestCmdUpdateSkill:
     @patch("desloppify.app.commands.update_skill.colorize", side_effect=lambda t, _c: t)
     @patch("desloppify.app.commands.update_skill.resolve_interface", return_value="unknown_thing")
     def test_unknown_interface(self, _mock_resolve, _mock_colorize, capsys):
-        args = argparse.Namespace(interface="unknown_thing")
+        args = SimpleNamespace(interface="unknown_thing")
         cmd_update_skill(args)
         out = capsys.readouterr().out
         assert "Unknown interface" in out

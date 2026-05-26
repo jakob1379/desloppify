@@ -20,7 +20,7 @@ from desloppify.engine.detectors import naming as naming_detector
 from desloppify.engine.detectors import single_use as single_use_detector
 
 if TYPE_CHECKING:
-    import argparse
+    from types import SimpleNamespace
 
     from desloppify.engine.detectors.base import ComplexitySignal
 
@@ -36,10 +36,10 @@ def make_cmd_large(
     file_finder: Callable[..., Any],
     default_threshold: int,
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect large files."""
 
-    def cmd_large(args: argparse.Namespace) -> None:
+    def cmd_large(args: SimpleNamespace) -> None:
         threshold = getattr(args, "threshold", default_threshold)
         entries, _ = large_detector.detect_large_files(
             Path(args.path),
@@ -64,10 +64,10 @@ def make_cmd_complexity(
     signals: list[ComplexitySignal],
     default_threshold: int = 15,
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect complexity signals."""
 
-    def cmd_complexity(args: argparse.Namespace) -> None:
+    def cmd_complexity(args: SimpleNamespace) -> None:
         threshold = getattr(args, "threshold", None) or default_threshold
         entries, _ = complexity_detector.detect_complexity(
             Path(args.path),
@@ -97,10 +97,10 @@ def make_cmd_single_use(
     build_dep_graph: Callable[..., Any],
     barrel_names: set[str],
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect single-use abstractions."""
 
-    def cmd_single_use(args: argparse.Namespace) -> None:
+    def cmd_single_use(args: SimpleNamespace) -> None:
         graph = build_dep_graph(Path(args.path))
         entries, _ = single_use_detector.detect_single_use_abstractions(
             Path(args.path), graph, barrel_names=barrel_names
@@ -124,10 +124,10 @@ def make_cmd_passthrough(
     name_key: str,
     total_key: str,
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect passthrough components/functions."""
 
-    def cmd_passthrough(args: argparse.Namespace) -> None:
+    def cmd_passthrough(args: SimpleNamespace) -> None:
         entries = detect_fn(Path(args.path))
         display_entries(
             args,
@@ -154,10 +154,10 @@ def make_cmd_naming(
     skip_names: set[str],
     skip_dirs: set[str] | None = None,
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect naming inconsistencies."""
 
-    def cmd_naming(args: argparse.Namespace) -> None:
+    def cmd_naming(args: SimpleNamespace) -> None:
         kwargs = dict(file_finder=file_finder, skip_names=skip_names)
         if skip_dirs:
             kwargs["skip_dirs"] = skip_dirs
@@ -187,10 +187,10 @@ def make_cmd_facade(
     build_dep_graph_fn: Callable[..., Any],
     detect_facades_fn: Callable[..., tuple[list[dict], int]],
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect re-export facades."""
 
-    def cmd_facade(args: argparse.Namespace) -> None:
+    def cmd_facade(args: SimpleNamespace) -> None:
         graph = build_dep_graph_fn(Path(args.path))
         entries, _ = detect_facades_fn(graph)
         if getattr(args, "json", False):
@@ -237,10 +237,10 @@ def make_cmd_facade(
 def make_cmd_smells(
     detect_smells_fn: Callable[..., Any],
     module_name: str | None = None,
-) -> Callable[[argparse.Namespace], None]:
+) -> Callable[[SimpleNamespace], None]:
     """Factory: detect code smells."""
 
-    def cmd_smells(args: argparse.Namespace) -> None:
+    def cmd_smells(args: SimpleNamespace) -> None:
         entries, _ = detect_smells_fn(Path(args.path))
         if getattr(args, "json", False):
             print(json.dumps({"entries": entries}, indent=2))

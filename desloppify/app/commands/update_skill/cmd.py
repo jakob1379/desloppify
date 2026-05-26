@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import ssl
 import urllib.error
 import urllib.request
+from types import SimpleNamespace
 
 from desloppify.app.skill_docs import (
     SKILL_BEGIN,
@@ -16,9 +16,9 @@ from desloppify.app.skill_docs import (
     SkillInstall,
     find_installed_skill,
 )
-from desloppify.base.exception_sets import CommandError
 from desloppify.base.discovery.file_paths import safe_write_text
 from desloppify.base.discovery.paths import get_project_root
+from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 
 _RAW_BASE = "https://raw.githubusercontent.com/peteromallet/desloppify/main/docs"
@@ -225,7 +225,7 @@ def update_installed_skill(interface: str) -> bool:
 
 
 def _run_cmd_update_skill(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     resolve_interface_fn,
     update_installed_skill_fn,
@@ -250,7 +250,7 @@ def _run_cmd_update_skill(
     update_installed_skill_fn(interface)
 
 
-def cmd_update_skill(args: argparse.Namespace) -> None:
+def cmd_update_skill(args: SimpleNamespace) -> None:
     """Install or update the desloppify skill document."""
     _run_cmd_update_skill(
         args,

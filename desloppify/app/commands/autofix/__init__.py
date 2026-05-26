@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_autofix(args: argparse.Namespace) -> None:
+def cmd_autofix(args: SimpleNamespace) -> None:
     """Dispatch to the autofix command implementation."""
     from .cmd import cmd_autofix as _cmd_autofix
 

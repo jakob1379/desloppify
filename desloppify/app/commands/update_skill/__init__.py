@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from . import cmd as _cmd
 
@@ -50,7 +50,7 @@ def update_installed_skill(interface: str) -> bool:
     )
 
 
-def cmd_update_skill(args: argparse.Namespace) -> None:
+def cmd_update_skill(args: SimpleNamespace) -> None:
     """Install or update the desloppify skill document."""
     _cmd._run_cmd_update_skill(
         args,

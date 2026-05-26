@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.resolve.messages as messages_mod
 from desloppify.app.commands.resolve.living_plan import ClusterContext
 
 
-def _args(*, status: str = "fixed", patterns: list[str] | None = None) -> argparse.Namespace:
-    return argparse.Namespace(status=status, patterns=patterns or ["smells::*"])
+def _args(*, status: str = "fixed", patterns: list[str] | None = None) -> SimpleNamespace:
+    return SimpleNamespace(status=status, patterns=patterns or ["smells::*"])
 
 
 def test_print_no_match_warning_uses_open_vs_resolved_label(capsys) -> None:

@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    plan_lock,
-    save_plan,
-)
 from desloppify.engine.plan_ops import (
     append_log_entry,
     normalize_step,
     parse_steps_file,
     step_summary,
+)
+from desloppify.engine.plan_state import (
+    load_plan,
+    plan_lock,
+    save_plan,
 )
 from desloppify.state_io import utc_now
 
@@ -27,7 +27,7 @@ from .update_flow import (
 
 
 def cmd_cluster_update(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: ClusterUpdateServices | None = None,
     plan_lock_fn=plan_lock,

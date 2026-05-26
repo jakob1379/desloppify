@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
 import inspect
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.base.discovery.file_paths import safe_write_text
@@ -42,18 +42,18 @@ class StageHandler:
     """Per-stage execution/record hooks for the codex triage pipeline."""
 
     run_parallel: Callable[[StageRunContext], TriageStageRunResult] | None = None
-    record_report: Callable[[str, argparse.Namespace, TriageServices], None] | None = None
+    record_report: Callable[[str, SimpleNamespace, TriageServices], None] | None = None
     prompt_mode: PromptMode = "output_only"
 
 
 def _record_observe_report(
     report: str,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
 ) -> None:
     from ..stages.commands import cmd_stage_observe
 
-    record_args = argparse.Namespace(
+    record_args = SimpleNamespace(
         stage="observe",
         report=report,
         state=getattr(args, "state", None),
@@ -63,12 +63,12 @@ def _record_observe_report(
 
 def _record_strategize_report(
     report: str,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
 ) -> None:
     from ..stages.commands import cmd_stage_strategize
 
-    record_args = argparse.Namespace(
+    record_args = SimpleNamespace(
         stage="strategize",
         report=report,
         state=getattr(args, "state", None),
@@ -78,12 +78,12 @@ def _record_strategize_report(
 
 def _record_reflect_report(
     report: str,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
 ) -> None:
     from ..stages.commands import cmd_stage_reflect
 
-    record_args = argparse.Namespace(
+    record_args = SimpleNamespace(
         stage="reflect",
         report=report,
         state=getattr(args, "state", None),
@@ -93,12 +93,12 @@ def _record_reflect_report(
 
 def _record_sense_check_report(
     report: str,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
 ) -> None:
     from ..stages.commands import cmd_stage_sense_check
 
-    record_args = argparse.Namespace(
+    record_args = SimpleNamespace(
         stage="sense-check",
         report=report,
         state=getattr(args, "state", None),

@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel
 from desloppify.base.output.terminal import colorize, print_table
+
 from .state_sync import detect_state_sync
 
 
-def cmd_react(args: argparse.Namespace) -> None:
+def cmd_react(args: SimpleNamespace) -> None:
     """Show React anti-patterns (state sync via useEffect)."""
     entries, _ = detect_state_sync(Path(args.path))
 

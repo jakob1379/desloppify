@@ -1,12 +1,13 @@
 """State-path and scan-gating helpers for command modules."""
 
 from __future__ import annotations
-import argparse
+
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.lang import auto_detect_lang_name
-from desloppify.base.output.terminal import colorize
 from desloppify.base.discovery.paths import get_project_root
+from desloppify.base.output.terminal import colorize
 from desloppify.engine._state.schema import (
     scan_inventory_available,
     scan_metrics_available,
@@ -24,13 +25,13 @@ def _sole_existing_lang_state_file() -> Path | None:
     return None
 
 
-def _allow_lang_state_fallback(args: argparse.Namespace) -> bool:
+def _allow_lang_state_fallback(args: SimpleNamespace) -> bool:
     """Whether command can safely fallback to the sole existing lang state file."""
     # Scan should always honor detected/explicit language mapping to avoid cross-lang merges.
     return getattr(args, "command", None) != "scan"
 
 
-def state_path(args: argparse.Namespace) -> Path | None:
+def state_path(args: SimpleNamespace) -> Path | None:
     """Get state file path from args, or None for default."""
     path_arg = getattr(args, "state", None)
     if path_arg:

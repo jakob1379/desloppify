@@ -1,10 +1,10 @@
 """Dead exports detection via Knip."""
 
-import argparse
 import json
 import sys
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel
 from desloppify.base.output.terminal import colorize, print_table
@@ -20,7 +20,7 @@ def detect_dead_exports(path: Path) -> tuple[list[dict], int]:
     return entries, len(entries)
 
 
-def cmd_exports(args: argparse.Namespace) -> None:
+def cmd_exports(args: SimpleNamespace) -> None:
     print(colorize("Scanning exports via Knip...", "dim"), file=sys.stderr)
     entries, _ = detect_dead_exports(Path(args.path))
     if args.json:

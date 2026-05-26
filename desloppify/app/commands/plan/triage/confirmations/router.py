@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
+from ..services import TriageServices, default_triage_services
 from .basic import (
     MIN_ATTESTATION_LEN,
     confirm_observe,
@@ -13,11 +14,10 @@ from .basic import (
 from .enrich import confirm_enrich, confirm_sense_check
 from .organize import confirm_organize
 from .strategize import confirm_strategize
-from ..services import TriageServices, default_triage_services
 
 
 def cmd_confirm_stage(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
-
 from desloppify.app.commands.show.scope import resolve_noise
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 
 class TestNoBudgetFlag:
@@ -26,14 +25,8 @@ class TestNoBudgetFlag:
         assert warning is None
 
     def test_no_budget_flag_parsed(self):
-        """The --no-budget flag is parsed correctly by argparse."""
-        from desloppify.app.cli_support.parser_groups import _add_show_parser
-
-        parent = argparse.ArgumentParser()
-        sub = parent.add_subparsers()
-        _add_show_parser(sub)
-
-        args = parent.parse_args(["show", "review", "--no-budget"])
+        """The --no-budget flag is parsed correctly."""
+        args = CliParseProbe().parse_args(["show", "review", "--no-budget"])
         assert getattr(args, "no_budget", False) is True
 
     def test_default_budget_still_applies(self):

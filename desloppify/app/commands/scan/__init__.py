@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_scan(args: argparse.Namespace) -> None:
+def cmd_scan(args: SimpleNamespace) -> None:
     """Dispatch to the scan command implementation."""
     from .cmd import cmd_scan as _cmd_scan
 

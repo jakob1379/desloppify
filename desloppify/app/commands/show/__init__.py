@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_show(args: argparse.Namespace) -> None:
+def cmd_show(args: SimpleNamespace) -> None:
     """Dispatch to the show command implementation."""
     from .cmd import cmd_show as _cmd_show
 

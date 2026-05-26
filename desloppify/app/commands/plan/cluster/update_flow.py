@@ -97,7 +97,7 @@ class ClusterUpdateServices:
 
 
 def build_request(args) -> ClusterUpdateRequest:
-    """Convert argparse namespace to typed request payload."""
+    """Convert CLI namespace to typed request payload."""
     add_step = getattr(args, "add_step", None)
     update_step = getattr(args, "update_step", None)
     update_title = getattr(args, "update_title", None)

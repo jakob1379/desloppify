@@ -13,7 +13,7 @@ from desloppify.languages.csharp.deps.cli import render_cycles_cli, render_deps_
 # ---------------------------------------------------------------------------
 
 def _make_args(path="/fake/project", file=None, json_flag=False, top=20, **extra):
-    """Build a SimpleNamespace that looks like argparse output."""
+    """Build a SimpleNamespace that looks like CLI output."""
     ns = SimpleNamespace(path=path, top=top, **extra)
     if file is not None:
         ns.file = file

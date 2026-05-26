@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.queue_render as queue_render_mod
 import desloppify.app.commands.plan.repair_state as repair_state_mod
@@ -169,7 +169,7 @@ def test_cmd_plan_queue_uses_recovered_runtime_state(monkeypatch, capsys) -> Non
 
     monkeypatch.setattr(queue_render_mod, "build_execution_queue", _fake_build_execution_queue)
 
-    args = argparse.Namespace(top=30, cluster=None, include_skipped=False, sort="priority")
+    args = SimpleNamespace(top=30, cluster=None, include_skipped=False, sort="priority")
     queue_render_mod.cmd_plan_queue(args)
 
     capsys.readouterr()
@@ -218,7 +218,7 @@ def test_run_triage_workflow_uses_recovered_runtime_state(monkeypatch, capsys) -
     )
 
     workflow_mod.run_triage_workflow(
-        argparse.Namespace(
+        SimpleNamespace(
             stage_prompt=None,
             run_stages=False,
             start=False,
@@ -259,7 +259,7 @@ def test_cmd_plan_repair_state_rebuilds_persisted_state(
     )
     monkeypatch.setattr(repair_state_mod, "command_runtime", lambda _args: runtime)
 
-    repair_state_mod.cmd_plan_repair_state(argparse.Namespace())
+    repair_state_mod.cmd_plan_repair_state(SimpleNamespace())
 
     repaired = json.loads((tmp_path / "state-typescript.json").read_text())
     assert repaired["scan_metadata"] == {
@@ -302,7 +302,7 @@ def test_cmd_plan_repair_state_restores_skips_into_scan_backed_state(
     )
     monkeypatch.setattr(repair_state_mod, "command_runtime", lambda _args: runtime)
 
-    repair_state_mod.cmd_plan_repair_state(argparse.Namespace())
+    repair_state_mod.cmd_plan_repair_state(SimpleNamespace())
 
     repaired = json.loads((tmp_path / "state-rust.json").read_text())
     item = repaired["work_items"][skipped_id]
@@ -340,7 +340,7 @@ def test_cmd_plan_repair_state_restores_false_positive_skip(
     )
     monkeypatch.setattr(repair_state_mod, "command_runtime", lambda _args: runtime)
 
-    repair_state_mod.cmd_plan_repair_state(argparse.Namespace())
+    repair_state_mod.cmd_plan_repair_state(SimpleNamespace())
 
     repaired = json.loads((tmp_path / "state-typescript.json").read_text())
     item = repaired["work_items"][skipped_id]

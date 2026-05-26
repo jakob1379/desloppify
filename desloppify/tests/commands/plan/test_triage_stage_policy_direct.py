@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from desloppify.base.exception_sets import CommandError
 from desloppify.app.commands.plan.triage import workflow as triage_workflow_mod
 from desloppify.app.commands.plan.triage.validation import (
     reflect_accounting as reflect_accounting_mod,
@@ -15,6 +14,7 @@ from desloppify.app.commands.plan.triage.validation import (
 from desloppify.app.commands.plan.triage.validation import (
     stage_policy as stage_policy_mod,
 )
+from desloppify.base.exception_sets import CommandError
 from desloppify.engine.plan_triage import compute_triage_progress
 
 
@@ -95,7 +95,7 @@ def test_read_report_file_raises_command_error_for_missing_file() -> None:
 
 
 def test_run_staged_runner_raises_command_error_for_invalid_stage() -> None:
-    args = argparse.Namespace(runner="codex", only_stages="observe,invalid")
+    args = SimpleNamespace(runner="codex", only_stages="observe,invalid")
 
     with pytest.raises(CommandError, match="Unknown stage"):
         triage_workflow_mod._run_staged_runner(
@@ -105,7 +105,7 @@ def test_run_staged_runner_raises_command_error_for_invalid_stage() -> None:
 
 
 def test_run_staged_runner_raises_command_error_for_unknown_runner() -> None:
-    args = argparse.Namespace(runner="invalid", only_stages=None)
+    args = SimpleNamespace(runner="invalid", only_stages=None)
 
     with pytest.raises(CommandError, match="Unknown runner"):
         triage_workflow_mod._run_staged_runner(

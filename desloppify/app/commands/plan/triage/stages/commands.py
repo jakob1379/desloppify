@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
+from ..services import TriageServices
+from .enrich import cmd_stage_enrich
 from .observe import cmd_stage_observe
 from .organize import cmd_stage_organize
 from .reflect import cmd_stage_reflect
-from .strategize import cmd_stage_strategize
-from ..services import TriageServices
-from .enrich import cmd_stage_enrich
 from .sense_check import cmd_stage_sense_check
+from .strategize import cmd_stage_strategize
 
 STAGE_COMMAND_HANDLERS = {
     "strategize": cmd_stage_strategize,
@@ -24,7 +24,7 @@ STAGE_COMMAND_HANDLERS = {
 
 def run_stage_command(
     stage: str | None,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> bool:

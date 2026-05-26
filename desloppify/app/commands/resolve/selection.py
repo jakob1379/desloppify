@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import copy
 import sys
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from desloppify import state as state_mod
 from desloppify.app.commands.helpers.attestation import (
@@ -37,7 +37,7 @@ class ResolveQueryContext:
     state: dict
 
 
-def _validate_resolve_inputs(args: argparse.Namespace, attestation: str | None) -> None:
+def _validate_resolve_inputs(args: SimpleNamespace, attestation: str | None) -> None:
     if args.status == "wontfix" and not args.note:
         raise CommandError(
             "Wontfix items become technical debt. Add --note to record your reasoning for future review."
@@ -71,7 +71,7 @@ def _preview_resolve_count(state: dict, patterns: list[str]) -> int:
 
 def _estimate_wontfix_strict_delta(
     state: dict,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     attestation: str | None,
     resolve_all_patterns_fn,
@@ -91,7 +91,7 @@ def _estimate_wontfix_strict_delta(
 
 def _enforce_batch_wontfix_confirmation(
     state: dict,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     attestation: str | None,
     resolve_all_patterns_fn,

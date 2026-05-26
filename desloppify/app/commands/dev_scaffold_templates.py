@@ -130,8 +130,8 @@ def _commands_template(lang_name: str) -> str:
         "from typing import TYPE_CHECKING\n\n"
         "from desloppify.base.output.terminal import colorize\n\n"
         "if TYPE_CHECKING:\n"
-        "    import argparse\n\n\n"
-        "def cmd_placeholder(_args: argparse.Namespace) -> None:\n"
+        "    from types import SimpleNamespace\n\n\n"
+        "def cmd_placeholder(_args: SimpleNamespace) -> None:\n"
         f'    print(colorize("{lang_name}: placeholder detector command (not implemented)", "yellow"))\n\n\n'
         "def get_detect_commands() -> dict[str, Callable[..., None]]:\n"
         '    return {"placeholder": cmd_placeholder}\n'

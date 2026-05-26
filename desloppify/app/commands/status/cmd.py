@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import json
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.by_language import (
     aggregate_language_scores,
@@ -15,18 +15,18 @@ from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory
 from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.output.terminal import colorize
-from desloppify.engine._state.filtering import open_scope_breakdown
 from desloppify.engine._scoring.results.core import compute_health_breakdown
+from desloppify.engine._state.filtering import open_scope_breakdown
 from desloppify.engine.planning.scorecard_projection import (
     scorecard_dimensions_payload,
 )
-from desloppify.state_scoring import score_snapshot, suppression_metrics
 from desloppify.state_io import load_state
+from desloppify.state_scoring import score_snapshot, suppression_metrics
 
 from .flow import render_terminal_status
 
 
-def cmd_status(args: argparse.Namespace) -> None:
+def cmd_status(args: SimpleNamespace) -> None:
     """Show score dashboard."""
     if getattr(args, "by_language", False):
         _cmd_status_by_language(args)
@@ -72,7 +72,7 @@ def cmd_status(args: argparse.Namespace) -> None:
     )
 
 
-def _cmd_status_by_language(args: argparse.Namespace) -> None:
+def _cmd_status_by_language(args: SimpleNamespace) -> None:
     project_root = get_project_root()
     languages = detect_present_languages(project_root)
     rows = []

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import pytest
@@ -24,7 +23,7 @@ def _args(**overrides):
         "format": "terminal",
     }
     base.update(overrides)
-    return argparse.Namespace(**base)
+    return SimpleNamespace(**base)
 
 
 def _issue(

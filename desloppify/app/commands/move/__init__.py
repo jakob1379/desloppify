@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 
-def cmd_move(args: argparse.Namespace) -> None:
+def cmd_move(args: SimpleNamespace) -> None:
     """Dispatch to the move command implementation."""
     from .cmd import cmd_move as _cmd_move
 

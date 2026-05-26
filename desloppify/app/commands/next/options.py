@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 
 @dataclass(frozen=True)
@@ -21,8 +21,8 @@ class NextOptions:
     output_format: str = "terminal"
 
     @classmethod
-    def from_args(cls, args: argparse.Namespace) -> NextOptions:
-        """Build from argparse args, applying defaults for missing attrs."""
+    def from_args(cls, args: SimpleNamespace) -> NextOptions:
+        """Build from CLI args, applying defaults for missing attrs."""
         return cls(
             count=getattr(args, "count", 1) or 1,
             scope=getattr(args, "scope", None),

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.guardrails import print_triage_guardrail_info
 from desloppify.app.commands.helpers.lang import resolve_lang
@@ -71,7 +71,7 @@ def _active_plan(plan: dict) -> dict | None:
 
 
 def _build_status_context(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     state: dict,
     config: dict,
@@ -178,7 +178,7 @@ def print_score_section(
 
 
 def render_terminal_status(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     state: dict,
     config: dict,

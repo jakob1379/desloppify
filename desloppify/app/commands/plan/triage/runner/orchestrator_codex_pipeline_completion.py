@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 import time
 from collections.abc import Mapping
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.base.output.terminal import colorize
@@ -47,7 +47,7 @@ def print_not_finalized_message(reason: str) -> None:
 def validate_and_confirm_stage(
     *,
     stage: str,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
     triage_input: Any,
     state: Any,
@@ -83,7 +83,7 @@ def validate_and_confirm_stage(
         )
 
     attestation = build_auto_attestation(stage, plan, triage_input)
-    confirm_args = argparse.Namespace(
+    confirm_args = SimpleNamespace(
         confirm=stage,
         attestation=attestation,
         state=getattr(args, "state", None),
@@ -148,7 +148,7 @@ def build_completion_strategy(stages_data: Mapping[str, Mapping[str, Any]]) -> s
 
 def complete_pipeline(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     services: TriageServices,
     plan: Mapping[str, Any],
     strategy: str,
@@ -160,7 +160,7 @@ def complete_pipeline(
     print(colorize("\n  Completing triage...", "bold"))
 
     attestation = build_auto_attestation("sense-check", plan, triage_input)
-    complete_args = argparse.Namespace(
+    complete_args = SimpleNamespace(
         complete=True,
         strategy=strategy[:2000],
         attestation=attestation,

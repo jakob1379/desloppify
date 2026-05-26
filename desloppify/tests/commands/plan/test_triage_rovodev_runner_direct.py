@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -108,7 +108,7 @@ def test_run_triage_stage_rovodev_propagates_runner_failure(tmp_path: Path) -> N
 
 def test_run_rovodev_pipeline_overrides_then_restores_runner(tmp_path: Path) -> None:
     """The wrapper sets the override for the call and restores it afterwards."""
-    args = argparse.Namespace(stage_timeout_seconds=60, dry_run=True)
+    args = SimpleNamespace(stage_timeout_seconds=60, dry_run=True)
 
     sentinel_state_before_runner = override_mod._STAGE_RUNNER_OVERRIDE
     sentinel_state_before_label = override_mod._RUNNER_NAME_OVERRIDE
@@ -133,7 +133,7 @@ def test_run_rovodev_pipeline_overrides_then_restores_runner(tmp_path: Path) -> 
 
 def test_run_rovodev_pipeline_restores_override_on_exception(tmp_path: Path) -> None:
     """If the inner pipeline raises, the overrides are still restored."""
-    args = argparse.Namespace(stage_timeout_seconds=60, dry_run=True)
+    args = SimpleNamespace(stage_timeout_seconds=60, dry_run=True)
 
     sentinel_runner = override_mod._STAGE_RUNNER_OVERRIDE
     sentinel_label = override_mod._RUNNER_NAME_OVERRIDE
@@ -153,9 +153,9 @@ def test_run_rovodev_pipeline_restores_override_on_exception(tmp_path: Path) -> 
 
 
 def test_triage_parser_accepts_rovodev_runner() -> None:
-    from desloppify.cli import create_parser
+    from desloppify.tests.commands.cli_probe import CliParseProbe
 
-    parser = create_parser()
+    parser = CliParseProbe()
     args = parser.parse_args(
         ["plan", "triage", "--run-stages", "--runner", "rovodev"]
     )
@@ -189,7 +189,7 @@ def test_workflow_dispatches_rovodev_runner() -> None:
     """`_run_staged_runner` routes ``--runner rovodev`` to the rovodev pipeline."""
     import desloppify.app.commands.plan.triage.workflow as workflow_mod
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         runner="rovodev",
         only_stages=None,
         stage_timeout_seconds=60,
@@ -213,7 +213,7 @@ def test_workflow_unknown_runner_message_lists_rovodev() -> None:
     import desloppify.app.commands.plan.triage.workflow as workflow_mod
     from desloppify.base.exception_sets import CommandError
 
-    args = argparse.Namespace(runner="nope", only_stages=None)
+    args = SimpleNamespace(runner="nope", only_stages=None)
     with pytest.raises(CommandError) as excinfo:
         workflow_mod._run_staged_runner(args, services=MagicMock())
 

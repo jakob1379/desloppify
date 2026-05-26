@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
+from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.rendering import print_agent_plan
-from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import state_path
 from desloppify.base import config as config_mod
 from desloppify.base.discovery.file_paths import rel
@@ -17,7 +17,7 @@ from desloppify.engine.policy.zones import FileZoneMap, Zone
 from desloppify.state_io import load_state, save_state
 
 
-def cmd_zone(args: argparse.Namespace) -> None:
+def cmd_zone(args: SimpleNamespace) -> None:
     """Handle zone subcommands: show, set, clear."""
     action = getattr(args, "zone_action", None)
     if action in (None, "show"):
@@ -30,7 +30,7 @@ def cmd_zone(args: argparse.Namespace) -> None:
         raise CommandError("Usage: desloppify zone {show|set|clear}")
 
 
-def _zone_show(args: argparse.Namespace):
+def _zone_show(args: SimpleNamespace):
     """Show zone classifications for all scanned files."""
     state_file = state_path(args)
     if not state_file.exists():
@@ -78,7 +78,7 @@ def _zone_show(args: argparse.Namespace):
     )
 
 
-def _zone_set(args: argparse.Namespace):
+def _zone_set(args: SimpleNamespace):
     """Set a zone override for a file."""
     filepath = args.zone_path
     zone_value = args.zone_value
@@ -118,7 +118,7 @@ def _zone_set(args: argparse.Namespace):
         return
 
 
-def _zone_clear(args: argparse.Namespace):
+def _zone_clear(args: SimpleNamespace):
     """Clear a zone override for a file."""
     filepath = args.zone_path
 

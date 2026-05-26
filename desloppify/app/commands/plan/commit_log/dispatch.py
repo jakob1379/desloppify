@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
+from types import SimpleNamespace
 
+from desloppify.base.config import load_config
+from desloppify.base.git_context import detect_git_context, update_pr_body
+from desloppify.base.output.terminal import colorize
+from desloppify.engine.plan_ops import append_log_entry
 from desloppify.engine.plan_state import (
     commit_tracking_summary,
     filter_issue_ids_by_pattern,
@@ -14,10 +18,6 @@ from desloppify.engine.plan_state import (
     record_commit,
     save_plan,
 )
-from desloppify.engine.plan_ops import append_log_entry
-from desloppify.base.config import load_config
-from desloppify.base.git_context import detect_git_context, update_pr_body
-from desloppify.base.output.terminal import colorize
 from desloppify.state_io import load_state
 
 
@@ -129,7 +129,7 @@ def _maybe_update_pr_body(plan: dict) -> None:
         )
 
 
-def _cmd_commit_log_record(args: argparse.Namespace, plan: dict) -> None:
+def _cmd_commit_log_record(args: SimpleNamespace, plan: dict) -> None:
     """Record a commit: capture HEAD, move uncommitted -> committed, update PR."""
     sha = getattr(args, "sha", None)
     branch = getattr(args, "branch", None)
@@ -169,7 +169,7 @@ def _cmd_commit_log_record(args: argparse.Namespace, plan: dict) -> None:
     _maybe_update_pr_body(plan)
 
 
-def _cmd_commit_log_history(args: argparse.Namespace, plan: dict) -> None:
+def _cmd_commit_log_history(args: SimpleNamespace, plan: dict) -> None:
     """Show commit records."""
     top = getattr(args, "top", 10)
     commit_log = plan.get("commit_log", [])
@@ -222,7 +222,7 @@ _COMMIT_LOG_HANDLERS = {
 }
 
 
-def cmd_commit_log_dispatch(args: argparse.Namespace) -> None:
+def cmd_commit_log_dispatch(args: SimpleNamespace) -> None:
     """Route commit-log subcommands."""
     config = load_config()
     if not config.get("commit_tracking_enabled", True):

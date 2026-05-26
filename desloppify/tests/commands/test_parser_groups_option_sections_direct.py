@@ -1,66 +1,14 @@
-"""Direct tests for parser section helper modules."""
+"""CLI option coverage for command groups that used to live in parser sections."""
 
 from __future__ import annotations
 
-import argparse
-
-from desloppify.app.cli_support.parser_groups_admin_review_options_batch import (
-    _add_batch_execution_options,
-)
-from desloppify.app.cli_support.parser_groups_admin_review_options_core import (
-    _add_core_options,
-)
-from desloppify.app.cli_support.parser_groups_admin_review_options_external import (
-    _add_external_review_options,
-)
-from desloppify.app.cli_support.parser_groups_admin_review_options_trust_post import (
-    _add_trust_options,
-)
-from desloppify.app.cli_support.parser_groups_plan_impl_sections_annotations import (
-    _add_annotation_subparsers,
-    _add_resolve_subparser,
-    _add_skip_subparsers,
-)
-from desloppify.app.cli_support.parser_groups_plan_impl_sections_cluster import (
-    _add_cluster_subparser,
-)
-from desloppify.app.cli_support.parser_groups_plan_impl_sections_queue_reorder import (
-    _add_queue_subparser,
-    _add_reorder_subparser,
-)
-from desloppify.app.cli_support.parser_groups_plan_impl_sections_triage_commit_scan import (
-    _add_commit_log_subparser,
-    _add_scan_gate_subparser,
-    _add_triage_subparser,
-)
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 
-def _build_plan_parser() -> tuple[argparse.ArgumentParser, argparse._SubParsersAction]:
-    parser = argparse.ArgumentParser(prog="desloppify")
-    root_sub = parser.add_subparsers(dest="command")
-    p_plan = root_sub.add_parser("plan")
-    plan_sub = p_plan.add_subparsers(dest="plan_action")
-    return parser, plan_sub
-
-
-def test_review_option_groups_register_expected_flags() -> None:
-    parser = argparse.ArgumentParser(prog="desloppify review")
-    _add_core_options(parser)
-    _add_external_review_options(parser)
-    _add_batch_execution_options(parser)
-    _add_trust_options(parser)
-
-    defaults = parser.parse_args([])
-    assert defaults.retrospective_max_issues == 30
-    assert defaults.retrospective_max_batch_items == 20
-    assert defaults.external_runner == "claude"
-    assert defaults.session_ttl_hours == 24
-    assert defaults.max_parallel_batches == 3
-    assert defaults.batch_timeout_seconds == 1200
-    assert defaults.batch_retry_backoff_seconds == 2.0
-
-    args = parser.parse_args(
+def test_review_options_parse_expected_flags() -> None:
+    args = CliParseProbe().parse_args(
         [
+            "review",
             "--prepare",
             "--import",
             "review.json",
@@ -134,23 +82,11 @@ def test_review_option_groups_register_expected_flags() -> None:
     assert args.attest == "without awareness and unbiased reviewer."
 
 
-def test_plan_queue_and_reorder_subparsers_parse_expected_shapes() -> None:
-    parser, plan_sub = _build_plan_parser()
-    _add_queue_subparser(plan_sub)
-    _add_reorder_subparser(plan_sub)
+def test_plan_queue_and_reorder_parse_expected_shapes() -> None:
+    parser = CliParseProbe()
 
     queue_args = parser.parse_args(
-        [
-            "plan",
-            "queue",
-            "--top",
-            "0",
-            "--cluster",
-            "auto/test_coverage",
-            "--include-skipped",
-            "--sort",
-            "recent",
-        ]
+        ["plan", "queue", "--top", "0", "--cluster", "auto/test_coverage", "--include-skipped", "--sort", "recent"]
     )
     assert queue_args.plan_action == "queue"
     assert queue_args.top == 0
@@ -159,15 +95,7 @@ def test_plan_queue_and_reorder_subparsers_parse_expected_shapes() -> None:
     assert queue_args.sort == "recent"
 
     reorder_args = parser.parse_args(
-        [
-            "plan",
-            "reorder",
-            "smells",
-            "unused::*",
-            "before",
-            "--target",
-            "security",
-        ]
+        ["plan", "reorder", "smells", "unused::*", "before", "--target", "security"]
     )
     assert reorder_args.plan_action == "reorder"
     assert reorder_args.patterns == ["smells", "unused::*"]
@@ -175,15 +103,10 @@ def test_plan_queue_and_reorder_subparsers_parse_expected_shapes() -> None:
     assert reorder_args.target == "security"
 
 
-def test_plan_annotation_skip_and_resolve_parsers() -> None:
-    parser, plan_sub = _build_plan_parser()
-    _add_annotation_subparsers(plan_sub)
-    _add_skip_subparsers(plan_sub)
-    _add_resolve_subparser(plan_sub)
+def test_plan_annotation_skip_and_resolve_parse() -> None:
+    parser = CliParseProbe()
 
-    describe_args = parser.parse_args(
-        ["plan", "describe", "unused::*", "security", "prioritize now"]
-    )
+    describe_args = parser.parse_args(["plan", "describe", "unused::*", "security", "prioritize now"])
     assert describe_args.plan_action == "describe"
     assert describe_args.patterns == ["unused::*", "security"]
     assert describe_args.text == "prioritize now"
@@ -194,16 +117,7 @@ def test_plan_annotation_skip_and_resolve_parsers() -> None:
     assert note_args.text == "temporary defer"
 
     skip_args = parser.parse_args(
-        [
-            "plan",
-            "skip",
-            "review::*",
-            "--reason",
-            "batch later",
-            "--review-after",
-            "2",
-            "--confirm",
-        ]
+        ["plan", "skip", "review::*", "--reason", "batch later", "--review-after", "2", "--confirm"]
     )
     assert skip_args.plan_action == "skip"
     assert skip_args.reason == "batch later"
@@ -235,12 +149,8 @@ def test_plan_annotation_skip_and_resolve_parsers() -> None:
     assert reopen_args.patterns == ["unused::*"]
 
 
-def test_plan_cluster_triage_commit_and_scan_gate_subparsers() -> None:
-    parser, plan_sub = _build_plan_parser()
-    _add_cluster_subparser(plan_sub)
-    _add_triage_subparser(plan_sub)
-    _add_commit_log_subparser(plan_sub)
-    _add_scan_gate_subparser(plan_sub)
+def test_plan_cluster_triage_commit_and_scan_gate_parse() -> None:
+    parser = CliParseProbe()
 
     cluster_update = parser.parse_args(
         [

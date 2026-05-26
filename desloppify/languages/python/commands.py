@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from desloppify.base.discovery.file_paths import rel
-
 from desloppify.base.discovery.source import find_py_files
 from desloppify.base.output.terminal import colorize, display_entries, print_table
 from desloppify.engine.detectors import dupes as dupes_detector_mod
@@ -26,7 +25,7 @@ from desloppify.languages.python.extractors import (
 from desloppify.languages.python.extractors_classes import extract_py_classes
 
 if TYPE_CHECKING:
-    import argparse
+    from types import SimpleNamespace
 
 from desloppify.languages._framework.commands.base import (
     make_cmd_complexity,
@@ -65,7 +64,7 @@ cmd_passthrough = make_cmd_passthrough(
 cmd_naming = make_cmd_naming(find_py_files, skip_names=PY_SKIP_NAMES, module_name=__name__)
 
 
-def cmd_gods(args: argparse.Namespace) -> None:
+def cmd_gods(args: SimpleNamespace) -> None:
     entries, _ = gods_detector_mod.detect_gods(
         extract_py_classes(Path(args.path)), PY_GOD_RULES
     )
@@ -85,7 +84,7 @@ def cmd_gods(args: argparse.Namespace) -> None:
     )
 
 
-def cmd_orphaned(args: argparse.Namespace) -> None:
+def cmd_orphaned(args: SimpleNamespace) -> None:
     graph = deps_detector_mod.build_dep_graph(Path(args.path))
     entries, _ = orphaned_detector_mod.detect_orphaned_files(
         Path(args.path),
@@ -119,7 +118,7 @@ def cmd_orphaned(args: argparse.Namespace) -> None:
     print_table(["File", "LOC"], rows, [80, 6])
 
 
-def cmd_unused(args: argparse.Namespace) -> None:
+def cmd_unused(args: SimpleNamespace) -> None:
     entries, _ = unused_detector_mod.detect_unused(Path(args.path))
     if getattr(args, "json", False):
         print(json.dumps({"count": len(entries), "entries": entries}, indent=2))
@@ -132,7 +131,7 @@ def cmd_unused(args: argparse.Namespace) -> None:
         print(f"  {rel(e['file'])}:{e['line']}  {e['category']}: {e['name']}")
 
 
-def cmd_deps(args: argparse.Namespace) -> None:
+def cmd_deps(args: SimpleNamespace) -> None:
     graph = deps_detector_mod.build_dep_graph(Path(args.path))
     if getattr(args, "json", False):
         print(json.dumps({"files": len(graph)}, indent=2))
@@ -146,7 +145,7 @@ def cmd_deps(args: argparse.Namespace) -> None:
         )
 
 
-def cmd_cycles(args: argparse.Namespace) -> None:
+def cmd_cycles(args: SimpleNamespace) -> None:
     graph = deps_detector_mod.build_dep_graph(Path(args.path))
     cycles, _ = graph_detector_mod.detect_cycles(graph)
     if getattr(args, "json", False):
@@ -172,7 +171,7 @@ cmd_facade = make_cmd_facade(
 )
 
 
-def cmd_dupes(args: argparse.Namespace) -> None:
+def cmd_dupes(args: SimpleNamespace) -> None:
     functions = []
     for filepath in find_py_files(Path(args.path)):
         functions.extend(extract_py_functions(filepath))

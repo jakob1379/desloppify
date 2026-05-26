@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from desloppify.app.commands.helpers.state import state_path
@@ -21,7 +21,7 @@ class CommandRuntime:
     state_path: Path | None
 
 
-def command_runtime(args: argparse.Namespace) -> CommandRuntime:
+def command_runtime(args: SimpleNamespace) -> CommandRuntime:
     """Return runtime context from explicit args.runtime or construct one."""
     runtime = getattr(args, "runtime", None)
     if isinstance(runtime, CommandRuntime):

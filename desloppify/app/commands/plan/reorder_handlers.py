@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory
 from desloppify.app.commands.plan.shared.cluster_membership import cluster_issue_ids
 from desloppify.app.commands.plan.shared.patterns import resolve_ids_from_patterns
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    save_plan,
-)
+from desloppify.engine._plan.promoted_ids import add_promoted_ids
 from desloppify.engine.plan_ops import (
     append_log_entry,
     move_items,
 )
-from desloppify.engine._plan.promoted_ids import add_promoted_ids
+from desloppify.engine.plan_state import (
+    load_plan,
+    save_plan,
+)
 
 _ACTIONABLE_PROMOTE_STATUSES = {"open", "deferred", "triaged_out"}
 
@@ -53,7 +53,7 @@ def resolve_target(plan: dict, target: str | None, position: str) -> str | None:
     return ordered[0] if position == "before" else ordered[-1]
 
 
-def cmd_plan_reorder(args: argparse.Namespace) -> None:
+def cmd_plan_reorder(args: SimpleNamespace) -> None:
     """Reorder issues in the queue."""
     state = command_runtime(args).state
     if not require_issue_inventory(state):
@@ -97,7 +97,7 @@ def cmd_plan_reorder(args: argparse.Namespace) -> None:
     print(colorize(f"  Moved {count} item(s) to {position}.", "green"))
 
 
-def cmd_plan_promote(args: argparse.Namespace) -> None:
+def cmd_plan_promote(args: SimpleNamespace) -> None:
     """Promote backlog issues or cluster members into the active queue."""
     state = command_runtime(args).state
     if not require_issue_inventory(state):

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.intelligence.narrative.core as narrative_mod
 from desloppify.app.commands.helpers.attestation import (
@@ -11,9 +11,9 @@ from desloppify.app.commands.helpers.attestation import (
 )
 from desloppify.app.commands.helpers.guardrails import require_triage_current_or_exit
 from desloppify.app.commands.helpers.lang import resolve_lang
-from desloppify.app.commands.helpers.state_persistence import save_state_or_exit
 from desloppify.app.commands.helpers.queue_progress import show_score_with_plan_context
 from desloppify.app.commands.helpers.state import state_path
+from desloppify.app.commands.helpers.state_persistence import save_state_or_exit
 from desloppify.base.output.terminal import colorize
 from desloppify.engine._state.resolution import coerce_assessment_score
 from desloppify.state_io import load_state
@@ -38,7 +38,7 @@ from .selection import (
 )
 
 
-def _validate_fixed_note(args: argparse.Namespace) -> bool:
+def _validate_fixed_note(args: SimpleNamespace) -> bool:
     if args.status != "fixed":
         return True
     note = getattr(args, "note", None)
@@ -49,7 +49,7 @@ def _validate_fixed_note(args: argparse.Namespace) -> bool:
 
 
 def _load_state_with_guards(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     attestation: str | None,
 ) -> tuple[str, dict, object] | None:
@@ -85,7 +85,7 @@ def _load_state_with_guards(
 
 def _resolve_ids_with_snapshots(
     state: dict,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     attestation: str | None,
     plan_access,
@@ -113,7 +113,7 @@ def _resolve_ids_with_snapshots(
     return prev, prev_subjective_scores, all_resolved
 
 
-def cmd_resolve(args: argparse.Namespace) -> None:
+def cmd_resolve(args: SimpleNamespace) -> None:
     """Resolve issue(s) matching one or more patterns."""
     attestation = getattr(args, "attest", None)
     loaded = _load_state_with_guards(args, attestation=attestation)

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
 from dataclasses import dataclass
+from types import SimpleNamespace
 
-from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.command_runtime import command_runtime
+from desloppify.app.commands.helpers.lang import resolve_lang
 from desloppify.app.commands.helpers.state import require_scan_metrics
 from desloppify.base.exception_sets import CommandError
 
@@ -22,7 +22,7 @@ from .prepare import do_prepare
 
 @dataclass(frozen=True)
 class ReviewOptions:
-    """All user-facing review command options extracted once from argparse."""
+    """All user-facing review command options extracted once from CLI args."""
 
     merge: bool = False
     run_batches: bool = False
@@ -41,7 +41,7 @@ class ReviewOptions:
     attest: str | None = None
 
     @classmethod
-    def from_args(cls, args: argparse.Namespace) -> ReviewOptions:
+    def from_args(cls, args: SimpleNamespace) -> ReviewOptions:
         return cls(
             merge=bool(getattr(args, "merge", False)),
             run_batches=bool(getattr(args, "run_batches", False)),
@@ -123,7 +123,7 @@ def _is_default_prepare_mode(opts: ReviewOptions, mode_flags: list[bool]) -> boo
 
 
 def _run_review_mode(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     opts: ReviewOptions,
     runtime,
@@ -213,7 +213,7 @@ def _run_review_mode(
     do_prepare(args, state, lang, state_file, config=runtime.config)
 
 
-def cmd_review(args: argparse.Namespace) -> None:
+def cmd_review(args: SimpleNamespace) -> None:
     """Prepare or import subjective code review issues."""
     _enable_live_review_output()
     runtime = command_runtime(args)

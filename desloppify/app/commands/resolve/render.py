@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import logging
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.score_update import print_strict_target_nudge
 from desloppify.app.commands.resolve.render_support import (
@@ -12,7 +12,7 @@ from desloppify.app.commands.resolve.render_support import (
     score_snapshot_or_error,
 )
 from desloppify.base.config import load_config
-from desloppify.base.exception_sets import CommandError, PLAN_LOAD_EXCEPTIONS
+from desloppify.base.exception_sets import PLAN_LOAD_EXCEPTIONS, CommandError
 from desloppify.base.git_context import detect_git_context
 from desloppify.base.output.terminal import colorize
 from desloppify.engine.plan_state import get_uncommitted_issues, suggest_commit_message
@@ -110,7 +110,7 @@ def _print_score_movement(
 
 def _print_subjective_reset_hint(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     all_resolved: list[str],
     prev_subjective_scores: dict[str, float],

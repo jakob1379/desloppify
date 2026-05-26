@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.base.config import (
@@ -15,7 +15,7 @@ from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 
 
-def cmd_config(args: argparse.Namespace) -> None:
+def cmd_config(args: SimpleNamespace) -> None:
     """Handle config subcommands: show, set, unset."""
     action = getattr(args, "config_action", None)
     if action == "set":
@@ -26,7 +26,7 @@ def cmd_config(args: argparse.Namespace) -> None:
         _config_show(args)
 
 
-def _config_show(args: argparse.Namespace):
+def _config_show(args: SimpleNamespace):
     """Print all config keys with current values and descriptions."""
     config = command_runtime(args).config
 
@@ -51,7 +51,7 @@ def _config_show(args: argparse.Namespace):
     print()
 
 
-def _config_set(args: argparse.Namespace):
+def _config_set(args: SimpleNamespace):
     """Set a config key to a value."""
     config = command_runtime(args).config
     key = args.config_key
@@ -72,7 +72,7 @@ def _config_set(args: argparse.Namespace):
     print(colorize(f"  Set {key} = {display}", "green"))
 
 
-def _config_unset(args: argparse.Namespace):
+def _config_unset(args: SimpleNamespace):
     """Reset a config key to its default."""
     config = command_runtime(args).config
     key = args.config_key

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.app.output._viz_cmd_context import load_cmd_context
 from desloppify.app.output.visualize import (
@@ -15,7 +15,7 @@ from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
 
 
-def _cmd_viz(args: argparse.Namespace) -> None:
+def _cmd_viz(args: SimpleNamespace) -> None:
     path, lang, state = load_cmd_context(args)
     output = Path(getattr(args, "output", None) or ".desloppify/treemap.html")
     print(colorize("Collecting file data and building dependency graph...", "dim"))
@@ -30,7 +30,7 @@ def _cmd_viz(args: argparse.Namespace) -> None:
     print(colorize(f"Open in browser: file://{output.resolve()}", "dim"))
 
 
-def _cmd_tree(args: argparse.Namespace) -> None:
+def _cmd_tree(args: SimpleNamespace) -> None:
     path, lang, state = load_cmd_context(args)
     try:
         tree_text = generate_tree_text(
@@ -50,11 +50,11 @@ def _cmd_tree(args: argparse.Namespace) -> None:
     print(tree_text)
 
 
-def cmd_viz(args: argparse.Namespace) -> None:
+def cmd_viz(args: SimpleNamespace) -> None:
     _cmd_viz(args)
 
 
-def cmd_tree(args: argparse.Namespace) -> None:
+def cmd_tree(args: SimpleNamespace) -> None:
     _cmd_tree(args)
 
 

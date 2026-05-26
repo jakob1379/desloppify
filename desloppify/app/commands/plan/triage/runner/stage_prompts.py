@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 from collections import Counter
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.paths import get_project_root
 from desloppify.engine._plan.triage.strategist_data import collect_strategist_input
@@ -28,12 +28,12 @@ from .stage_prompts_observe import (
     _observe_batch_instructions,
     build_observe_batch_prompt,
 )
-from .stage_prompts_strategist import build_strategist_prompt
 from .stage_prompts_sense import (
     build_sense_check_content_prompt,
     build_sense_check_structure_prompt,
     build_sense_check_value_prompt,
 )
+from .stage_prompts_strategist import build_strategist_prompt
 from .stage_prompts_validation import _validation_requirements
 
 
@@ -494,7 +494,7 @@ def build_stage_prompt(
 
 
 def cmd_stage_prompt(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

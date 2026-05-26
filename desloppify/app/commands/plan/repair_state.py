@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import load_plan, plan_path_for_state
 from desloppify.engine._state.recovery import (
     has_saved_plan_without_scan,
     reconcile_saved_plan_skips,
     reconstruct_state_from_saved_plan,
 )
+from desloppify.engine.plan_state import load_plan, plan_path_for_state
 from desloppify.state_io import (
     StateModel,
     empty_state,
@@ -31,7 +31,7 @@ def _resolved_state_file(runtime) -> Path:
     return get_state_file()
 
 
-def cmd_plan_repair_state(args: argparse.Namespace) -> None:
+def cmd_plan_repair_state(args: SimpleNamespace) -> None:
     """Rebuild persisted state from live plan metadata when scan data is gone."""
     runtime = command_runtime(args)
     state_file = _resolved_state_file(runtime)

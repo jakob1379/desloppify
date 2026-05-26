@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 from desloppify.base.discovery.paths import get_project_root
 from desloppify.base.output.terminal import colorize
 
-from ..stage_queue import has_triage_in_queue, inject_triage_stages
 from ..lifecycle import TriageLifecycleDeps, ensure_triage_started
 from ..services import TriageServices, default_triage_services
+from ..stage_queue import has_triage_in_queue, inject_triage_stages
 from .orchestrator_common import STAGES
 
 
 def run_claude_orchestrator(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     *,
     services: TriageServices | None = None,
 ) -> None:

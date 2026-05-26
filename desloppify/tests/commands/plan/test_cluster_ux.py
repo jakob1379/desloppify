@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.cluster.dispatch as cluster_mod
 import desloppify.app.commands.plan.cluster.update as cluster_update_mod
@@ -32,7 +32,7 @@ def _fake_runtime(state: dict):
     return type("Ctx", (), {"state": state, "config": {}})()
 
 
-def _fake_args(**overrides) -> argparse.Namespace:
+def _fake_args(**overrides) -> SimpleNamespace:
     defaults = {
         "lang": None,
         "path": ".",
@@ -54,7 +54,7 @@ def _fake_args(**overrides) -> argparse.Namespace:
         "target": None,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
 # ---------------------------------------------------------------------------

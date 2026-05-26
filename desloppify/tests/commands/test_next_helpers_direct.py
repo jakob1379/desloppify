@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import desloppify.app.commands.helpers.queue_progress_render as queue_render_mod
@@ -13,12 +12,12 @@ import desloppify.app.commands.next.render_workflow as workflow_render_mod
 
 
 def test_next_options_from_args_defaults_and_overrides() -> None:
-    defaults = options_mod.NextOptions.from_args(argparse.Namespace())
+    defaults = options_mod.NextOptions.from_args(SimpleNamespace())
     assert defaults.count == 1
     assert defaults.status == "open"
     assert defaults.output_format == "terminal"
 
-    args = argparse.Namespace(
+    args = SimpleNamespace(
         count=5,
         scope="src/",
         status="all",

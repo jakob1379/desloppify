@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import pytest
 
-from desloppify.cli import create_parser
 from desloppify.base.registry import DETECTORS, display_order
 from desloppify.intelligence.review import (
     DIMENSION_PROMPTS,
     REVIEW_SYSTEM_PROMPT,
+    hash_file,
 )
 from desloppify.intelligence.review import (
     DIMENSIONS as REVIEW_DIMENSIONS,
 )
-from desloppify.intelligence.review import hash_file
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 # ── Registry tests ────────────────────────────────────────────────
 
@@ -78,25 +78,25 @@ class TestHashFile:
 
 class TestCLI:
     def test_review_parser_exists(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         # Should parse without error
         args = parser.parse_args(["review", "--prepare"])
         assert args.command == "review"
         assert args.prepare is True
 
     def test_review_import_flag(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         args = parser.parse_args(["review", "--import", "issues.json"])
         assert args.command == "review"
         assert args.import_file == "issues.json"
 
     def test_review_allow_partial_flag(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         args = parser.parse_args(["review", "--import", "issues.json", "--allow-partial"])
         assert args.allow_partial is True
 
     def test_review_max_age_flag_rejected(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         try:
             parser.parse_args(["review", "--max-age", "60"])
             raise AssertionError("Expected SystemExit for removed --max-age")
@@ -104,7 +104,7 @@ class TestCLI:
             assert exc.code == 2
 
     def test_review_max_files_flag_rejected(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         try:
             parser.parse_args(["review", "--max-files", "25"])
             raise AssertionError("Expected SystemExit for removed --max-files")
@@ -112,7 +112,7 @@ class TestCLI:
             assert exc.code == 2
 
     def test_review_refresh_flag_rejected(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         try:
             parser.parse_args(["review", "--refresh"])
             raise AssertionError("Expected SystemExit for removed --refresh")
@@ -120,14 +120,14 @@ class TestCLI:
             assert exc.code == 2
 
     def test_review_dimensions_flag(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         args = parser.parse_args(
             ["review", "--dimensions", "naming_quality,comment_quality"]
         )
         assert args.dimensions == "naming_quality,comment_quality"
 
     def test_review_run_batches_flags(self):
-        parser = create_parser()
+        parser = CliParseProbe()
         args = parser.parse_args(
             [
                 "review",
@@ -172,4 +172,3 @@ class TestCLI:
 
 
 # ── New dimension tests ──────────────────────────────────────────
-

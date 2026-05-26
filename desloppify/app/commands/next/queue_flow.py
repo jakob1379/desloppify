@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import argparse
 from collections.abc import Callable
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.guardrails import triage_guardrail_messages
 from desloppify.app.commands.helpers.lang import resolve_lang
@@ -17,12 +17,12 @@ from desloppify.base.output.user_message import print_user_message
 from desloppify.engine._state.filtering import path_scoped_issues
 from desloppify.engine._work_queue.context import queue_context
 from desloppify.engine._work_queue.core import QueueBuildOptions
-from desloppify.engine._work_queue.policy import explain_queue
-from desloppify.engine._work_queue.snapshot import build_queue_snapshot
 from desloppify.engine._work_queue.plan_order import (
     collapse_clusters,
     filter_cluster_focus,
 )
+from desloppify.engine._work_queue.policy import explain_queue
+from desloppify.engine._work_queue.snapshot import build_queue_snapshot
 from desloppify.engine.plan_state import load_plan
 from desloppify.engine.planning.queue_policy import (
     build_backlog_queue,
@@ -352,7 +352,7 @@ def _apply_queue_view_transforms(
 
 def _render_non_empty_queue(
     *,
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     items: list[dict],
     queue: dict,
@@ -407,7 +407,7 @@ def _render_non_empty_queue(
 
 
 def _build_and_render_queue_view(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     config: dict,
     *,
@@ -490,7 +490,7 @@ def _build_and_render_queue_view(
 
 
 def build_and_render_execution_queue(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     config: dict,
     *,
@@ -510,7 +510,7 @@ def build_and_render_execution_queue(
 
 
 def build_and_render_backlog_queue(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     config: dict,
     *,
@@ -530,7 +530,7 @@ def build_and_render_backlog_queue(
 
 
 def build_and_render_queue(
-    args: argparse.Namespace,
+    args: SimpleNamespace,
     state: dict,
     config: dict,
     *,

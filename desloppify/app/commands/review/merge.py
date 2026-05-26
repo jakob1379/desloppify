@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 from typing import Any, NamedTuple, TypedDict
 
-from desloppify.app.commands.helpers.query import write_query
 from desloppify.app.commands.helpers.command_runtime import command_runtime
+from desloppify.app.commands.helpers.query import write_query
 from desloppify.app.commands.helpers.queue_progress import show_score_with_plan_context
 from desloppify.base.output.issues import issue_weight
 from desloppify.base.output.terminal import colorize
@@ -145,7 +145,7 @@ def _merge_issue_details(
     track_merged_from(primary_detail, duplicate.get("id", ""))
 
 
-def _similarity_threshold(args: argparse.Namespace) -> float:
+def _similarity_threshold(args: SimpleNamespace) -> float:
     try:
         similarity = float(getattr(args, "similarity", 0.8))
     except (TypeError, ValueError):
@@ -227,7 +227,7 @@ def _apply_merge_groups(
     return merged_pairs
 
 
-def do_merge(args: argparse.Namespace) -> None:
+def do_merge(args: SimpleNamespace) -> None:
     """Merge conceptually duplicate open review issues."""
     runtime = command_runtime(args)
     state = runtime.state

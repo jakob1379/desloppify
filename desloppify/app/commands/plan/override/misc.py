@@ -2,23 +2,20 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.app.commands.helpers.command_runtime import command_runtime
 from desloppify.app.commands.helpers.state import require_issue_inventory, state_path
+from desloppify.app.commands.helpers.transition_messages import emit_transition_message
 from desloppify.app.commands.plan.shared.patterns import resolve_ids_from_patterns
-from .io import (
-    _plan_file_for_state,
-    save_plan_state_transactional,
-)
 from desloppify.base.config import target_strict_score_from_config
 from desloppify.base.output.terminal import colorize
-from desloppify.engine.plan_state import (
-    load_plan,
-    purge_uncommitted_ids,
-    save_plan,
+from desloppify.engine._plan.refresh_lifecycle import (
+    invalidate_postflight_scan,
 )
+from desloppify.engine._plan.sync import reconcile_plan
+from desloppify.engine._state.resolution import resolve_issues
 from desloppify.engine.plan_ops import (
     annotate_issue,
     append_log_entry,
@@ -26,16 +23,20 @@ from desloppify.engine.plan_ops import (
     describe_issue,
     set_focus,
 )
-from desloppify.app.commands.helpers.transition_messages import emit_transition_message
-from desloppify.engine._plan.refresh_lifecycle import (
-    invalidate_postflight_scan,
+from desloppify.engine.plan_state import (
+    load_plan,
+    purge_uncommitted_ids,
+    save_plan,
 )
-from desloppify.engine._plan.sync import reconcile_plan
-from desloppify.engine._state.resolution import resolve_issues
 from desloppify.state_io import load_state
 
+from .io import (
+    _plan_file_for_state,
+    save_plan_state_transactional,
+)
 
-def cmd_plan_describe(args: argparse.Namespace) -> None:
+
+def cmd_plan_describe(args: SimpleNamespace) -> None:
     """Set augmented description on issues."""
     state = command_runtime(args).state
     if not require_issue_inventory(state):
@@ -63,7 +64,7 @@ def cmd_plan_describe(args: argparse.Namespace) -> None:
     print(colorize(f"  Set description on {len(issue_ids)} issue(s).", "green"))
 
 
-def cmd_plan_note(args: argparse.Namespace) -> None:
+def cmd_plan_note(args: SimpleNamespace) -> None:
     """Set note on issues."""
     state = command_runtime(args).state
     if not require_issue_inventory(state):
@@ -85,7 +86,7 @@ def cmd_plan_note(args: argparse.Namespace) -> None:
     print(colorize(f"  Set note on {len(issue_ids)} issue(s).", "green"))
 
 
-def cmd_plan_reopen(args: argparse.Namespace) -> None:
+def cmd_plan_reopen(args: SimpleNamespace) -> None:
     """Reopen resolved issues from plan context."""
     patterns: list[str] = getattr(args, "patterns", [])
 
@@ -149,7 +150,7 @@ def cmd_plan_reopen(args: argparse.Namespace) -> None:
         emit_transition_message(transition_phase)
 
 
-def cmd_plan_focus(args: argparse.Namespace) -> None:
+def cmd_plan_focus(args: SimpleNamespace) -> None:
     """Set or clear the active cluster focus."""
     clear_flag = getattr(args, "clear", False)
     cluster_name: str | None = getattr(args, "cluster_name", None)
@@ -185,7 +186,7 @@ def cmd_plan_focus(args: argparse.Namespace) -> None:
     print(colorize(f"  Focused on: {cluster_name}", "green"))
 
 
-def cmd_plan_scan_gate(args: argparse.Namespace) -> None:
+def cmd_plan_scan_gate(args: SimpleNamespace) -> None:
     """Check or skip the scan requirement for workflow items."""
     skip = getattr(args, "skip", False)
     note: str | None = getattr(args, "note", None)

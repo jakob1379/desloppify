@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from types import SimpleNamespace
 
 import desloppify.app.commands.plan.triage.stages.observe as observe_mod
@@ -10,10 +9,10 @@ import desloppify.app.commands.plan.triage.stages.organize as organize_mod
 import desloppify.app.commands.plan.triage.stages.reflect as reflect_mod
 
 
-def _args(**overrides) -> argparse.Namespace:
+def _args(**overrides) -> SimpleNamespace:
     base = {"report": None, "attestation": None}
     base.update(overrides)
-    return argparse.Namespace(**base)
+    return SimpleNamespace(**base)
 
 
 def _services(

@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.override.resolve_cmd as override_mod
 import desloppify.app.commands.plan.override.resolve_workflow as override_workflow_mod
-from desloppify.app.commands.plan.override.resolve_helpers import blocked_triage_stages as _blocked_triage_stages
-from desloppify.engine._plan.schema import empty_plan
+from desloppify.app.commands.plan.override.resolve_helpers import (
+    blocked_triage_stages as _blocked_triage_stages,
+)
 from desloppify.engine._plan.constants import TRIAGE_STAGE_IDS
+from desloppify.engine._plan.schema import empty_plan
 
 
 def _plan_with_triage_stages(*confirmed_stages: str) -> dict:
@@ -27,7 +29,7 @@ def _plan_with_triage_stages(*confirmed_stages: str) -> dict:
     return plan
 
 
-def _args(**overrides) -> argparse.Namespace:
+def _args(**overrides) -> SimpleNamespace:
     defaults = {
         "patterns": [],
         "attest": None,
@@ -40,7 +42,7 @@ def _args(**overrides) -> argparse.Namespace:
         "exclude": None,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
 # ── Unit tests for _blocked_triage_stages ───────────────

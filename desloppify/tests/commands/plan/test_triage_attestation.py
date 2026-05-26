@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import argparse
+from types import SimpleNamespace
 
 import desloppify.app.commands.plan.triage.command as triage_mod
 from desloppify.app.commands.plan.triage.confirmations.basic import (
@@ -10,8 +10,8 @@ from desloppify.app.commands.plan.triage.confirmations.basic import (
     validate_attestation,
 )
 from desloppify.app.commands.plan.triage.services import TriageServices
-from desloppify.engine._plan.schema import empty_plan
 from desloppify.engine._plan.constants import TRIAGE_STAGE_IDS
+from desloppify.engine._plan.schema import empty_plan
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -59,7 +59,7 @@ def _fake_runtime(state: dict):
     return type("Ctx", (), {"state": state, "config": {}})()
 
 
-def _fake_args(**overrides) -> argparse.Namespace:
+def _fake_args(**overrides) -> SimpleNamespace:
     defaults = {
         "lang": None,
         "path": ".",
@@ -76,7 +76,7 @@ def _fake_args(**overrides) -> argparse.Namespace:
         "dry_run": False,
     }
     defaults.update(overrides)
-    return argparse.Namespace(**defaults)
+    return SimpleNamespace(**defaults)
 
 
 def _fake_services(plan, state, save_plan_fn=None):

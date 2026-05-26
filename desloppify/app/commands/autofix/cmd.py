@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.app.commands.autofix.preview import show_fix_dry_run_samples
 from desloppify.base.output.terminal import colorize
@@ -18,7 +18,7 @@ from .apply_flow import (
 from .fixer_selection import resolve_fixer_config
 
 
-def cmd_autofix(args: argparse.Namespace) -> None:
+def cmd_autofix(args: SimpleNamespace) -> None:
     """Auto-fix mechanical issues."""
     fixer_name = args.fixer
 

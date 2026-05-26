@@ -1,26 +1,20 @@
 """Direct unit tests for five transitive-only modules.
 
-Covers:
+Cover:
 - desloppify.engine._state.merge (MergeScanOptions, merge_scan)
 - desloppify.intelligence.review.context_holistic.readers (_abs, _read_file_contents)
-- desloppify.app.cli_support.parser_groups_admin/parser_groups (parser builders, helpers)
+- desloppify.app.cli_support.typer_app (command argument wiring)
 - desloppify.app.commands.move.apply (rollback, apply helpers)
 - desloppify.languages._framework.base.shared_phases (entries_to_issues, log, find_external)
 """
 
 from __future__ import annotations
 
-import argparse
 import shutil
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-
-import desloppify.app.cli_support.parser_groups as parser_groups_mod
-
-# ── Module 3: parser_groups_admin ─────────────────────────────────────
-import desloppify.app.cli_support.parser_groups_admin as parser_admin_mod
 
 # ── Module 4: move_apply ──────────────────────────────────────────────
 import desloppify.app.commands.move.apply as move_apply_mod
@@ -34,6 +28,7 @@ import desloppify.intelligence.review.context_holistic.readers as readers_mod
 # ── Module 5: shared_phases ───────────────────────────────────────────
 import desloppify.languages._framework.base.shared_phases as shared_phases_mod
 from desloppify.engine._state.merge import MergeScanOptions, merge_scan
+from desloppify.tests.commands.cli_probe import CliParseProbe
 
 # =====================================================================
 # Module 1: merge.py
@@ -295,38 +290,19 @@ class TestReaders:
 
 
 # =====================================================================
-# Module 3: parser_groups_admin.py
+# Module 3: typer_app.py
 # =====================================================================
 
 
-class TestDeprecatedAction:
-    """Removed deprecated parser actions stay removed."""
-
-    def test_deprecated_action_removed(self):
-        assert not hasattr(parser_admin_mod, "_DeprecatedAction")
-
-    def test_deprecated_bool_action_removed(self):
-        assert not hasattr(parser_admin_mod, "_DeprecatedBoolAction")
-
-
-class TestDetectParser:
-    """Tests for _add_detect_parser."""
-
+class TestTyperCliWiring:
     def test_detect_subcommand_arguments(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_detect_parser(sub, ["smells", "structural"])
-
-        args = parser.parse_args(["detect", "smells", "--top", "10", "--json"])
+        args = CliParseProbe().parse_args(["detect", "smells", "--top", "10", "--json"])
         assert args.detector == "smells"
         assert args.top == 10
         assert args.json is True
 
-    def test_detect_defaults(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_detect_parser(sub, ["smells"])
-
+    def test_detect_defaults_and_category_choices(self):
+        parser = CliParseProbe()
         args = parser.parse_args(["detect", "smells"])
         assert args.top == 20
         assert args.json is False
@@ -337,58 +313,28 @@ class TestDetectParser:
         assert args.path is None
         assert args.lang_opt is None
 
-    def test_detect_category_choices(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_detect_parser(sub, ["smells"])
-
         for cat in ["imports", "vars", "params", "all"]:
             args = parser.parse_args(["detect", "smells", "--category", cat])
             assert args.category == cat
 
-    def test_detect_invalid_category_rejected(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_detect_parser(sub, ["smells"])
-
         with pytest.raises(SystemExit):
             parser.parse_args(["detect", "smells", "--category", "bogus"])
 
-
-class TestMoveParser:
-    def test_move_requires_source_and_dest(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_move_parser(sub)
-
+    def test_move_command(self):
+        parser = CliParseProbe()
         args = parser.parse_args(["move", "a.py", "b.py"])
         assert args.source == "a.py"
         assert args.dest == "b.py"
         assert args.dry_run is False
 
-    def test_move_dry_run(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_move_parser(sub)
-
         args = parser.parse_args(["move", "a.py", "b.py", "--dry-run"])
         assert args.dry_run is True
-
-    def test_move_missing_args(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_move_parser(sub)
 
         with pytest.raises(SystemExit):
             parser.parse_args(["move", "a.py"])
 
-
-class TestReviewParser:
-    def test_review_defaults(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
-
+    def test_review_defaults_and_flags(self):
+        parser = CliParseProbe()
         args = parser.parse_args(["review"])
         assert args.path is None
         assert args.state is None
@@ -413,46 +359,20 @@ class TestReviewParser:
         assert args.only_batches is None
         assert args.scan_after_import is False
 
-    def test_review_prepare_flag(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
-
         args = parser.parse_args(["review", "--prepare", "--path", "/some/path"])
         assert args.prepare is True
         assert args.path == "/some/path"
 
-    def test_review_import_file(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
-
-        args = parser.parse_args(["review", "--import", "results.json"])
+        args = parser.parse_args(["review", "--import", "results.json", "--allow-partial"])
         assert args.import_file == "results.json"
-
-    def test_review_validate_import_file(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
+        assert args.allow_partial is True
 
         args = parser.parse_args(["review", "--validate-import", "results.json"])
         assert args.validate_import_file == "results.json"
 
-    def test_review_external_start_flag(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
-
-        args = parser.parse_args(
-            ["review", "--external-start", "--external-runner", "claude"]
-        )
+        args = parser.parse_args(["review", "--external-start", "--external-runner", "claude"])
         assert args.external_start is True
         assert args.external_runner == "claude"
-
-    def test_review_external_submit_flag(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
 
         args = parser.parse_args(
             [
@@ -467,196 +387,77 @@ class TestReviewParser:
         assert args.external_submit is True
         assert args.session_id == "ext_20260223_000000_deadbeef"
 
-    def test_review_allow_partial_flag(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_review_parser(sub)
+    def test_config_zone_and_plan_commands(self):
+        parser = CliParseProbe()
+        zone_args = parser.parse_args(["zone", "set", "foo.py", "test"])
+        assert zone_args.zone_action == "set"
+        assert zone_args.zone_path == "foo.py"
+        assert zone_args.zone_value == "test"
 
-        args = parser.parse_args(["review", "--import", "results.json", "--allow-partial"])
-        assert args.allow_partial is True
+        zone_clear = parser.parse_args(["zone", "clear", "foo.py"])
+        assert zone_clear.zone_action == "clear"
 
+        config_set = parser.parse_args(["config", "set", "max_age", "60"])
+        assert config_set.config_action == "set"
+        assert config_set.config_key == "max_age"
+        assert config_set.config_value == "60"
 
-class TestZoneParser:
-    def test_zone_set(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_zone_parser(sub)
+        config_unset = parser.parse_args(["config", "unset", "max_age"])
+        assert config_unset.config_action == "unset"
 
-        args = parser.parse_args(["zone", "set", "foo.py", "test"])
-        assert args.zone_action == "set"
-        assert args.zone_path == "foo.py"
-        assert args.zone_value == "test"
+        config_show = parser.parse_args(["config", "show"])
+        assert config_show.config_action == "show"
 
-    def test_zone_clear(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_zone_parser(sub)
+        plan_args = parser.parse_args(["plan", "--output", "plan.md"])
+        assert plan_args.output == "plan.md"
 
-        args = parser.parse_args(["zone", "clear", "foo.py"])
-        assert args.zone_action == "clear"
-        assert args.zone_path == "foo.py"
+        viz_args = parser.parse_args(["viz", "--path", "src", "--output", "out.html"])
+        assert viz_args.path == "src"
+        assert viz_args.output == "out.html"
 
+    def test_autofix_dev_langs_and_update_skill_commands(self):
+        parser = CliParseProbe()
+        fix_args = parser.parse_args(["autofix", "unused", "--path", "src", "--dry-run"])
+        assert fix_args.fixer == "unused"
+        assert fix_args.path == "src"
+        assert fix_args.dry_run is True
 
-class TestConfigParser:
-    def test_config_set(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_config_parser(sub)
+        dev_args = parser.parse_args(["dev", "scaffold-lang", "go"])
+        assert dev_args.name == "go"
+        assert dev_args.default_src == "src"
+        assert dev_args.force is False
+        assert dev_args.wire_pyproject is True
+        assert dev_args.extension is None
+        assert dev_args.marker is None
 
-        args = parser.parse_args(["config", "set", "max_age", "60"])
-        assert args.config_action == "set"
-        assert args.config_key == "max_age"
-        assert args.config_value == "60"
-
-    def test_config_unset(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_config_parser(sub)
-
-        args = parser.parse_args(["config", "unset", "max_age"])
-        assert args.config_action == "unset"
-        assert args.config_key == "max_age"
-
-    def test_config_show(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_config_parser(sub)
-
-        args = parser.parse_args(["config", "show"])
-        assert args.config_action == "show"
-
-
-class TestFixerHelpLines:
-    @patch("desloppify.app.cli_support.parser_groups_admin.load_lang_config")
-    def test_fixer_help_lines_with_fixers(self, mock_load_lang_config):
-        mock_lang = MagicMock()
-        mock_lang.fixers = {"unused": MagicMock(), "logs": MagicMock()}
-        mock_load_lang_config.return_value = mock_lang
-
-        lines = parser_admin_mod._fixer_help_lines(["python"])
-        assert len(lines) == 1  # one lang line
-        assert "logs, unused" in lines[0]
-
-    @patch("desloppify.app.cli_support.parser_groups_admin.load_lang_config")
-    def test_fixer_help_lines_import_error(self, mock_load_lang_config):
-        mock_load_lang_config.side_effect = ImportError("no such lang")
-
-        lines = parser_admin_mod._fixer_help_lines(["bogus"])
-        assert "failed to load" in lines[0]
-
-
-class TestFixParser:
-    def test_fix_parser_args(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        with patch(
-            "desloppify.app.cli_support.parser_groups_admin.load_lang_config"
-        ) as mock_load:
-            mock_load.side_effect = ImportError()
-            parser_admin_mod._add_autofix_parser(sub, ["python"])
-
-        args = parser.parse_args(
-            ["autofix", "unused", "--path", "src", "--dry-run"]
+        dev_full = parser.parse_args(
+            [
+                "dev",
+                "scaffold-lang",
+                "go",
+                "--extension",
+                ".go",
+                "--extension",
+                ".gomod",
+                "--marker",
+                "go.mod",
+                "--default-src",
+                ".",
+                "--force",
+                "--no-wire-pyproject",
+            ]
         )
-        assert args.fixer == "unused"
-        assert args.path == "src"
-        assert args.dry_run is True
+        assert dev_full.extension == [".go", ".gomod"]
+        assert dev_full.marker == ["go.mod"]
+        assert dev_full.default_src == "."
+        assert dev_full.force is True
+        assert dev_full.wire_pyproject is False
 
-
-class TestPlanAndVizParsers:
-    def test_plan_parser(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_groups_mod.add_plan_parser(sub)
-
-        args = parser.parse_args(["plan", "--output", "plan.md"])
-        assert args.output == "plan.md"
-
-    def test_viz_parser(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_viz_parser(sub)
-
-        args = parser.parse_args(["viz", "--path", "src", "--output", "out.html"])
-        assert args.path == "src"
-        assert args.output == "out.html"
-
-
-class TestDevParser:
-    def test_dev_scaffold_lang_defaults(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_dev_parser(sub)
-
-        args = parser.parse_args(["dev", "scaffold-lang", "go"])
-        assert args.name == "go"
-        assert args.default_src == "src"
-        assert args.force is False
-        assert args.wire_pyproject is True
-        assert args.extension is None
-        assert args.marker is None
-
-    def test_dev_scaffold_lang_all_flags(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_dev_parser(sub)
-
-        args = parser.parse_args([
-            "dev", "scaffold-lang", "go",
-            "--extension", ".go",
-            "--extension", ".gomod",
-            "--marker", "go.mod",
-            "--default-src", ".",
-            "--force",
-            "--no-wire-pyproject",
-        ])
-        assert args.extension == [".go", ".gomod"]
-        assert args.marker == ["go.mod"]
-        assert args.default_src == "."
-        assert args.force is True
-        assert args.wire_pyproject is False
-
-
-class TestLangsAndUpdateSkillParsers:
-    def test_langs_parser(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_langs_parser(sub)
-
-        args = parser.parse_args(["langs"])
-        assert args.command == "langs"
-
-    def test_update_skill_parser_no_interface(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_update_skill_parser(sub)
-
-        args = parser.parse_args(["update-skill"])
-        assert args.interface is None
-
-    def test_update_skill_parser_with_interface(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_update_skill_parser(sub)
-
-        args = parser.parse_args(["update-skill", "claude"])
-        assert args.interface == "claude"
-
-    def test_update_skill_parser_with_opencode_interface(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_update_skill_parser(sub)
-
-        args = parser.parse_args(["update-skill", "opencode"])
-        assert args.interface == "opencode"
-
-    def test_update_skill_parser_with_qwen_interface(self):
-        parser = argparse.ArgumentParser()
-        sub = parser.add_subparsers(dest="command")
-        parser_admin_mod._add_update_skill_parser(sub)
-
-        args = parser.parse_args(["update-skill", "qwen"])
-        assert args.interface == "qwen"
+        assert parser.parse_args(["langs"]).command == "langs"
+        assert parser.parse_args(["update-skill"]).interface is None
+        assert parser.parse_args(["update-skill", "claude"]).interface == "claude"
+        assert parser.parse_args(["update-skill", "opencode"]).interface == "opencode"
+        assert parser.parse_args(["update-skill", "qwen"]).interface == "qwen"
 
 
 # =====================================================================

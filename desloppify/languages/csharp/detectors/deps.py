@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import logging
 import os
@@ -10,23 +9,38 @@ import shlex
 import subprocess  # nosec B404
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import resolve_path
 from desloppify.engine.detectors.graph import finalize_graph
 from desloppify.languages.csharp.detectors.deps_support_metadata import (
     expand_namespace_matches as _expand_namespace_matches,
+)
+from desloppify.languages.csharp.detectors.deps_support_metadata import (
     parse_file_metadata as _parse_file_metadata,
 )
 from desloppify.languages.csharp.detectors.deps_support_projects import (
     find_csproj_files as _find_csproj_files,
+)
+from desloppify.languages.csharp.detectors.deps_support_projects import (
     map_file_to_project as _map_file_to_project,
+)
+from desloppify.languages.csharp.detectors.deps_support_projects import (
     parse_csproj_references as _parse_csproj_references,
+)
+from desloppify.languages.csharp.detectors.deps_support_projects import (
     parse_project_assets_references as _parse_project_assets_references,
 )
 from desloppify.languages.csharp.detectors.deps_support_render import (
     build_graph_from_edge_map as _build_graph_from_edge_map,
+)
+from desloppify.languages.csharp.detectors.deps_support_render import (
     render_cycles_for_graph as _render_cycles_for_graph,
+)
+from desloppify.languages.csharp.detectors.deps_support_render import (
     render_deps_for_graph as _render_deps_for_graph,
+)
+from desloppify.languages.csharp.detectors.deps_support_render import (
     safe_resolve_graph_path as _safe_resolve_graph_path,
 )
 from desloppify.languages.csharp.extractors import (
@@ -265,13 +279,13 @@ def resolve_roslyn_cmd_from_args(args) -> str | None:
     return None
 
 
-def cmd_deps(args: argparse.Namespace) -> None:
+def cmd_deps(args: SimpleNamespace) -> None:
     """Show dependency info for a specific C# file or top coupled files."""
     graph = build_dep_graph(Path(args.path), roslyn_cmd=resolve_roslyn_cmd_from_args(args))
     _render_deps_for_graph(args, graph=graph)
 
 
-def cmd_cycles(args: argparse.Namespace) -> None:
+def cmd_cycles(args: SimpleNamespace) -> None:
     """Show import cycles in C# source files."""
     graph = build_dep_graph(Path(args.path), roslyn_cmd=resolve_roslyn_cmd_from_args(args))
     _render_cycles_for_graph(args, graph=graph)

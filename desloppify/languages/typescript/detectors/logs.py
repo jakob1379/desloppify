@@ -6,7 +6,6 @@ Catches:
 - Template-literal tags: console.log(`${TAG_VAR} ...`) where TAG_VAR = '[Tag]'
 """
 
-import argparse
 import json
 import logging
 import os
@@ -14,6 +13,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 from desloppify.base.discovery.file_paths import rel, resolve_path
 from desloppify.base.discovery.source import find_ts_and_tsx_files
@@ -57,7 +57,7 @@ def detect_logs(path: Path) -> DetectorResult[dict]:
     return DetectorResult(entries=entries, population_kind="files", population_size=total_files)
 
 
-def cmd_logs(args: argparse.Namespace) -> None:
+def cmd_logs(args: SimpleNamespace) -> None:
     result = detect_logs(Path(args.path))
     entries = result.entries
     if args.json:
