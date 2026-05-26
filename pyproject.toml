@@ -30,6 +30,11 @@ dependencies = [
   "typer>=0.12",
 ]
 
+[tool.uv]
+required-environments = [
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
 [project.urls]
 Homepage = "https://github.com/peteromallet/desloppify"
 Repository = "https://github.com/peteromallet/desloppify"
@@ -38,7 +43,7 @@ Issues = "https://github.com/peteromallet/desloppify/issues"
 [project.optional-dependencies]
 treesitter = [
   "tree-sitter>=0.21",
-  "tree-sitter-language-pack>=0.3,<1.8",
+  "tree-sitter-language-pack>=0.3,<1.9",
 ]
 csharp-xml = ["defusedxml>=0.7.0"]
 python-security = ["bandit>=1.7.8"]
@@ -47,7 +52,7 @@ plan-yaml = ["PyYAML>=6.0"]
 full = [
   "defusedxml>=0.7.0",
   "tree-sitter>=0.21",
-  "tree-sitter-language-pack>=0.3,<1.8",
+  "tree-sitter-language-pack>=0.3,<1.9",
   "bandit>=1.7.8",
   "Pillow>=9.0.0",
   "PyYAML>=6.0",
